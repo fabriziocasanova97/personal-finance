@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { LayoutDashboard, ReceiptText, Banknote, PiggyBank, CalendarRange } from 'lucide-react';
+import { DataSync } from './DataSync';
 
 const navItems = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -44,6 +45,9 @@ export function TopNavigation() {
                 );
               })}
             </div>
+          </div>
+          <div className="flex items-center">
+            <DataSync />
           </div>
         </div>
       </div>
