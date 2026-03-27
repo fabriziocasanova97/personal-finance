@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Lora, IBM_Plex_Mono } from "next/font/google";
 import { TopNavigation } from "@/components/layout/TopNavigation";
+import { GlobalAddExpense } from "@/components/layout/GlobalAddExpense";
 import "./globals.css";
 
 const fontInter = Inter({
@@ -35,6 +36,7 @@ export default function RootLayout({
         className={`${fontInter.variable} ${fontLora.variable} ${fontIbmPlexMono.variable} antialiased bg-background text-foreground`}
       >
         <TopNavigation />
+        <GlobalAddExpense />
         <main className="w-full mx-auto px-4 sm:px-6 lg:px-12 xl:px-24 py-8">
           {children}
         </main>

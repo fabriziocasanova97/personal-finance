@@ -10,7 +10,7 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
 const YEAR = 2026; // Static for MVP as per previous implementation
 
 export default function MonthlyReviewPage() {
-  const { income, fixedCosts, expenses, savings } = useStore();
+  const { income, fixedCosts, expenses, savings, idealExpenses, setIdealExpenses } = useStore();
   const [mounted, setMounted] = useState(false);
   
   // By default select the first 3 months + current month, or all if we want. Let's select all initially for easy viewing.
@@ -100,6 +100,20 @@ export default function MonthlyReviewPage() {
     carryOver = totalAvailable; // carry this over to the next selected month
   });
 
+  const idealDebtsTotal = getDebtSubtotalForMonth(new Date().getMonth());
+  const idealSavingsTotal = getSavingsSubtotalForMonth(new Date().getMonth());
+  
+  const idealExpensesTotal = expenseCategories.reduce((sum, cat) => {
+    const val = parseFloat(idealExpenses[cat] || "0");
+    return sum + (isNaN(val) ? 0 : val);
+  }, 0);
+
+  const idealAvailable = monthlyIncome - totalFixedCosts - idealDebtsTotal - idealExpensesTotal - idealSavingsTotal;
+
+  const handleIdealExpenseChange = (category: string, value: string) => {
+    setIdealExpenses({ ...idealExpenses, [category]: value });
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500 pb-8">
       
@@ -134,6 +148,7 @@ export default function MonthlyReviewPage() {
             <thead className="bg-gray-50 border-b border-gray-200 uppercase tracking-wider text-gray-500 text-xs font-semibold">
               <tr>
                 <th className="px-4 py-3 sticky left-0 bg-gray-50 z-10 w-64 border-r border-gray-200">Category</th>
+                <th className="px-4 py-3 text-right w-32 border-r border-blue-200 bg-blue-50/50 text-blue-800">Ideal</th>
                 {activeMonths.map(m => (
                   <th key={m} className="px-4 py-3 text-right w-32 border-r border-gray-200 last:border-r-0">{m}</th>
                 ))}
@@ -146,6 +161,9 @@ export default function MonthlyReviewPage() {
                 <td className="px-4 py-4 sticky left-0 z-10 border-r border-gray-200 font-bold text-gray-900 bg-white group-hover:bg-green-50/30">
                   Income
                 </td>
+                <td className="px-4 py-3 text-right font-mono font-medium text-green-700 bg-blue-50/30 border-r border-blue-100">
+                  {formatCurrency(monthlyIncome)}
+                </td>
                 {selectedMonths.map(m => (
                   <td key={m} className="px-4 py-3 text-right font-mono font-medium text-green-700 border-r border-gray-200 last:border-r-0">
                     {formatCurrency(monthlyIncome)}
@@ -155,6 +173,9 @@ export default function MonthlyReviewPage() {
               <tr className="bg-green-50/10 hover:bg-green-50/20 transition-colors">
                 <td className="px-4 py-3 sticky left-0 z-10 border-r border-gray-200 text-gray-600 bg-white">
                   + Rollover from Previous Month
+                </td>
+                <td className="px-4 py-3 text-right font-mono text-gray-500 bg-blue-50/30 border-r border-blue-100">
+                  -
                 </td>
                 {selectedMonths.map(m => (
                   <td key={m} className="px-4 py-3 text-right font-mono text-gray-500 border-r border-gray-200 last:border-r-0">
@@ -166,6 +187,9 @@ export default function MonthlyReviewPage() {
                 <td className="px-4 py-4 sticky left-0 z-10 border-r border-gray-200 text-green-900 bg-white">
                   Total Monthly Funds
                 </td>
+                <td className="px-4 py-4 text-right font-mono text-green-800 bg-blue-50/30 border-r border-blue-100">
+                  {formatCurrency(monthlyIncome)}
+                </td>
                 {selectedMonths.map(m => (
                   <td key={m} className="px-4 py-4 text-right font-mono text-green-800 border-r border-gray-200 last:border-r-0">
                     {formatCurrency(monthlyIncome + rolloverPerMonth[m])}
@@ -173,102 +197,9 @@ export default function MonthlyReviewPage() {
                 ))}
               </tr>
 
-              {/* --- FIXED COSTS SECTION --- */}
-               <tr className="bg-gray-100/50">
-                <td colSpan={selectedMonths.length + 1} className="px-4 py-2 text-xs font-bold text-gray-800 uppercase tracking-wider">
-                  Fixed Costs
-                </td>
-              </tr>
-              {regularFixedCosts.map(cost => (
-                <tr key={cost.id} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="px-4 py-3 sticky left-0 bg-white z-10 border-r border-gray-200 text-gray-700">
-                    {cost.name} <span className="text-xs text-gray-400 ml-2">({cost.category})</span>
-                  </td>
-                  {selectedMonths.map(m => (
-                    <td key={m} className="px-4 py-3 text-right font-mono text-gray-700 border-r border-gray-200 last:border-r-0">
-                      {formatCurrency(cost.amount)}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-              <tr className="bg-amber-50/30 font-semibold border-t-2 border-gray-100">
-                <td className="px-4 py-3 sticky left-0 z-10 border-r border-gray-200 text-amber-900 bg-white">
-                  Fixed Costs Subtotal
-                </td>
-                {selectedMonths.map(m => (
-                  <td key={m} className="px-4 py-3 text-right font-mono text-amber-700 border-r border-gray-200 last:border-r-0">
-                    {formatCurrency(totalFixedCosts)}
-                  </td>
-                ))}
-              </tr>
-
-              {/* --- DEBTS SECTION --- */}
-              <tr className="bg-gray-100/50">
-                <td colSpan={selectedMonths.length + 1} className="px-4 py-2 text-xs font-bold text-gray-800 uppercase tracking-wider">
-                  Debts & Payment Plans
-                </td>
-              </tr>
-              {debtCosts.map(cost => (
-                <tr key={cost.id} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="px-4 py-3 sticky left-0 bg-white z-10 border-r border-gray-200 text-gray-700 flex justify-between items-center">
-                    <span>{cost.name}</span>
-                  </td>
-                  {selectedMonths.map(m => {
-                    const isActive = isDebtActiveInMonth(cost, m);
-                    return (
-                      <td key={m} className={`px-4 py-3 text-right font-mono border-r border-gray-200 last:border-r-0 ${isActive ? 'text-gray-700' : 'text-gray-300'}`}>
-                        {isActive ? formatCurrency(cost.amount) : '-'}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-              <tr className="bg-red-50/30 font-semibold border-t-2 border-gray-100">
-                <td className="px-4 py-3 sticky left-0 z-10 border-r border-gray-200 text-red-900 bg-white">
-                  Debts Subtotal
-                </td>
-                {selectedMonths.map(m => (
-                  <td key={m} className="px-4 py-3 text-right font-mono text-red-700 border-r border-gray-200 last:border-r-0">
-                    {formatCurrency(getDebtSubtotalForMonth(m))}
-                  </td>
-                ))}
-              </tr>
-
-              {/* --- DAILY EXPENSES SECTION --- */}
-               <tr className="bg-gray-100/50">
-                <td colSpan={selectedMonths.length + 1} className="px-4 py-2 text-xs font-bold text-gray-800 uppercase tracking-wider">
-                  Daily Expenses
-                </td>
-              </tr>
-              {expenseCategories.map(cat => (
-                <tr key={cat} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="px-4 py-3 sticky left-0 bg-white z-10 border-r border-gray-200 text-gray-700">
-                    {cat}
-                  </td>
-                  {selectedMonths.map(m => {
-                    const amount = getExpenseForMonth(cat, m);
-                    return (
-                      <td key={m} className={`px-4 py-3 text-right font-mono border-r border-gray-200 last:border-r-0 ${amount === 0 ? 'text-gray-300' : 'text-gray-700'}`}>
-                        {amount > 0 ? formatCurrency(amount) : '-'}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-              <tr className="bg-orange-50/30 font-semibold border-t-2 border-gray-100">
-                <td className="px-4 py-3 sticky left-0 z-10 border-r border-gray-200 text-orange-900 bg-white">
-                  Daily Expenses Subtotal
-                </td>
-                {selectedMonths.map(m => (
-                  <td key={m} className="px-4 py-3 text-right font-mono text-orange-700 border-r border-gray-200 last:border-r-0">
-                    {formatCurrency(getExpenseSubtotalForMonth(m))}
-                  </td>
-                ))}
-              </tr>
-
               {/* --- SAVINGS SECTION --- */}
                <tr className="bg-gray-100/50">
-                <td colSpan={selectedMonths.length + 1} className="px-4 py-2 text-xs font-bold text-gray-800 uppercase tracking-wider">
+                <td colSpan={selectedMonths.length + 2} className="px-4 py-2 text-xs font-bold text-gray-800 uppercase tracking-wider">
                   Savings
                 </td>
               </tr>
@@ -276,6 +207,9 @@ export default function MonthlyReviewPage() {
                 <tr key={goal} className="hover:bg-gray-50/50 transition-colors">
                   <td className="px-4 py-3 sticky left-0 bg-white z-10 border-r border-gray-200 text-gray-700">
                     {goal}
+                  </td>
+                  <td className={`px-4 py-3 text-right font-mono bg-blue-50/30 border-r border-blue-100 ${(getSavingsForMonth(goal, new Date().getMonth()) > 0) ? 'text-gray-700' : 'text-gray-300'}`}>
+                    {getSavingsForMonth(goal, new Date().getMonth()) > 0 ? formatCurrency(getSavingsForMonth(goal, new Date().getMonth())) : '-'}
                   </td>
                   {selectedMonths.map(m => {
                     const amount = getSavingsForMonth(goal, m);
@@ -291,9 +225,129 @@ export default function MonthlyReviewPage() {
                 <td className="px-4 py-3 sticky left-0 z-10 border-r border-gray-200 text-purple-900 bg-white">
                   Savings Subtotal
                 </td>
+                <td className="px-4 py-3 text-right font-mono text-purple-700 bg-blue-50/30 border-r border-blue-100">
+                  {formatCurrency(idealSavingsTotal)}
+                </td>
                 {selectedMonths.map(m => (
                   <td key={m} className="px-4 py-3 text-right font-mono text-purple-700 border-r border-gray-200 last:border-r-0">
                     {formatCurrency(getSavingsSubtotalForMonth(m))}
+                  </td>
+                ))}
+              </tr>
+
+              {/* --- FIXED COSTS SECTION --- */}
+               <tr className="bg-gray-100/50">
+                <td colSpan={selectedMonths.length + 2} className="px-4 py-2 text-xs font-bold text-gray-800 uppercase tracking-wider">
+                  Fixed Costs
+                </td>
+              </tr>
+              {regularFixedCosts.map(cost => (
+                <tr key={cost.id} className="hover:bg-gray-50/50 transition-colors">
+                  <td className="px-4 py-3 sticky left-0 bg-white z-10 border-r border-gray-200 text-gray-700">
+                    {cost.name} <span className="text-xs text-gray-400 ml-2">({cost.category})</span>
+                  </td>
+                  <td className="px-4 py-3 text-right font-mono text-gray-700 bg-blue-50/30 border-r border-blue-100">
+                    {formatCurrency(cost.amount)}
+                  </td>
+                  {selectedMonths.map(m => (
+                    <td key={m} className="px-4 py-3 text-right font-mono text-gray-700 border-r border-gray-200 last:border-r-0">
+                      {formatCurrency(cost.amount)}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+              <tr className="bg-amber-50/30 font-semibold border-t-2 border-gray-100">
+                <td className="px-4 py-3 sticky left-0 z-10 border-r border-gray-200 text-amber-900 bg-white">
+                  Fixed Costs Subtotal
+                </td>
+                <td className="px-4 py-3 text-right font-mono text-amber-700 bg-blue-50/30 border-r border-blue-100">
+                  {formatCurrency(totalFixedCosts)}
+                </td>
+                {selectedMonths.map(m => (
+                  <td key={m} className="px-4 py-3 text-right font-mono text-amber-700 border-r border-gray-200 last:border-r-0">
+                    {formatCurrency(totalFixedCosts)}
+                  </td>
+                ))}
+              </tr>
+
+              {/* --- DEBTS SECTION --- */}
+              <tr className="bg-gray-100/50">
+                <td colSpan={selectedMonths.length + 2} className="px-4 py-2 text-xs font-bold text-gray-800 uppercase tracking-wider">
+                  Debts & Payment Plans
+                </td>
+              </tr>
+              {debtCosts.map(cost => (
+                <tr key={cost.id} className="hover:bg-gray-50/50 transition-colors">
+                  <td className="px-4 py-3 sticky left-0 bg-white z-10 border-r border-gray-200 text-gray-700 flex justify-between items-center">
+                    <span>{cost.name}</span>
+                  </td>
+                  <td className={`px-4 py-3 text-right font-mono bg-blue-50/30 border-r border-blue-100 ${isDebtActiveInMonth(cost, new Date().getMonth()) ? 'text-gray-700' : 'text-gray-300'}`}>
+                    {isDebtActiveInMonth(cost, new Date().getMonth()) ? formatCurrency(cost.amount) : '-'}
+                  </td>
+                  {selectedMonths.map(m => {
+                    const isActive = isDebtActiveInMonth(cost, m);
+                    return (
+                      <td key={m} className={`px-4 py-3 text-right font-mono border-r border-gray-200 last:border-r-0 ${isActive ? 'text-gray-700' : 'text-gray-300'}`}>
+                        {isActive ? formatCurrency(cost.amount) : '-'}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+              <tr className="bg-red-50/30 font-semibold border-t-2 border-gray-100">
+                <td className="px-4 py-3 sticky left-0 z-10 border-r border-gray-200 text-red-900 bg-white">
+                  Debts Subtotal
+                </td>
+                <td className="px-4 py-3 text-right font-mono text-red-700 bg-blue-50/30 border-r border-blue-100">
+                  {formatCurrency(idealDebtsTotal)}
+                </td>
+                {selectedMonths.map(m => (
+                  <td key={m} className="px-4 py-3 text-right font-mono text-red-700 border-r border-gray-200 last:border-r-0">
+                    {formatCurrency(getDebtSubtotalForMonth(m))}
+                  </td>
+                ))}
+              </tr>
+
+              {/* --- DAILY EXPENSES SECTION --- */}
+               <tr className="bg-gray-100/50">
+                <td colSpan={selectedMonths.length + 2} className="px-4 py-2 text-xs font-bold text-gray-800 uppercase tracking-wider">
+                  Daily Expenses
+                </td>
+              </tr>
+              {expenseCategories.map(cat => (
+                <tr key={cat} className="hover:bg-gray-50/50 transition-colors">
+                  <td className="px-4 py-3 sticky left-0 bg-white z-10 border-r border-gray-200 text-gray-700">
+                    {cat}
+                  </td>
+                  <td className="px-2 py-2 text-right bg-blue-50/30 border-r border-blue-100 align-middle">
+                    <input 
+                      type="number"
+                      value={idealExpenses[cat] ?? ""}
+                      onChange={(e) => handleIdealExpenseChange(cat, e.target.value)}
+                      placeholder="0"
+                      className="w-16 px-1 py-1 text-right text-xs font-mono border border-blue-200 rounded text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white hover:bg-white"
+                    />
+                  </td>
+                  {selectedMonths.map(m => {
+                    const amount = getExpenseForMonth(cat, m);
+                    return (
+                      <td key={m} className={`px-4 py-3 text-right font-mono border-r border-gray-200 last:border-r-0 ${amount === 0 ? 'text-gray-300' : 'text-gray-700'}`}>
+                        {amount > 0 ? formatCurrency(amount) : '-'}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+              <tr className="bg-orange-50/30 font-semibold border-t-2 border-gray-100">
+                <td className="px-4 py-3 sticky left-0 z-10 border-r border-gray-200 text-orange-900 bg-white">
+                  Daily Expenses Subtotal
+                </td>
+                <td className="px-4 py-3 text-right font-mono text-orange-700 bg-blue-50/30 border-r border-blue-100">
+                  {formatCurrency(idealExpensesTotal)}
+                </td>
+                {selectedMonths.map(m => (
+                  <td key={m} className="px-4 py-3 text-right font-mono text-orange-700 border-r border-gray-200 last:border-r-0">
+                    {formatCurrency(getExpenseSubtotalForMonth(m))}
                   </td>
                 ))}
               </tr>
@@ -303,10 +357,13 @@ export default function MonthlyReviewPage() {
                 <td className="px-4 py-5 sticky left-0 z-10 border-r border-gray-200 text-blue-900 bg-white whitespace-normal">
                   Available (Rollover to Next Month)
                 </td>
+                <td className={`px-4 py-5 text-right font-mono border-r border-blue-200 bg-blue-100/50 ${idealAvailable >= 0 ? 'text-blue-700' : 'text-red-600'}`}>
+                  {formatCurrency(idealAvailable)}
+                </td>
                  {selectedMonths.map((m) => {
                   const available = availablePerMonth[m];
                   return (
-                    <td key={m} className={`px-4 py-5 text-right font-mono text-lg border-r border-gray-200 last:border-r-0 ${available >= 0 ? 'text-blue-700' : 'text-red-600'}`}>
+                    <td key={m} className={`px-4 py-5 text-right font-mono border-r border-gray-200 last:border-r-0 ${available >= 0 ? 'text-blue-700' : 'text-red-600'}`}>
                       {formatCurrency(available)}
                     </td>
                   );

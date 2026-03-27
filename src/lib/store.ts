@@ -50,6 +50,7 @@ interface FinClearState {
   expenses: Expense[];
   savings: Savings[];
   budgets: Budget[];
+  idealExpenses: Record<string, string>;
   
   // Actions
   setIncome: (income: Income | null) => void;
@@ -57,6 +58,7 @@ interface FinClearState {
   setExpenses: (expenses: Expense[]) => void;
   setSavings: (savings: Savings[]) => void;
   setBudgets: (budgets: Budget[]) => void;
+  setIdealExpenses: (idealExpenses: Record<string, string>) => void;
 }
 
 export const useStore = create<FinClearState>()(
@@ -67,12 +69,14 @@ export const useStore = create<FinClearState>()(
       expenses: [],
       savings: [],
       budgets: [],
+      idealExpenses: {},
 
       setIncome: (income) => set({ income }),
       setFixedCosts: (fixedCosts) => set({ fixedCosts }),
       setExpenses: (expenses) => set({ expenses }),
       setSavings: (savings) => set({ savings }),
       setBudgets: (budgets) => set({ budgets }),
+      setIdealExpenses: (idealExpenses) => set({ idealExpenses }),
     }),
     {
       name: 'finclear_data', // storage name
