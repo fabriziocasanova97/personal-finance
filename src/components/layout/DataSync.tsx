@@ -2,6 +2,7 @@
 
 import { Download, Upload } from 'lucide-react';
 import { useRef } from 'react';
+import { dbOverwriteCloudWithLocal } from '@/lib/db';
 
 export function DataSync() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -45,8 +46,18 @@ export function DataSync() {
         }
 
         localStorage.setItem('finclear_data', result);
-        alert('Data imported successfully! The dashboard will now reload.');
-        window.location.reload();
+        
+        // Push the imported data to cloud if authenticated
+        dbOverwriteCloudWithLocal(parsed.state)
+          .then(() => {
+            alert('Data imported and synced to cloud successfully! The dashboard will now reload.');
+            window.location.reload();
+          })
+          .catch((err) => {
+            console.error('Cloud upload failed:', err);
+            alert('Data imported locally, but failed to sync to cloud. The dashboard will now reload.');
+            window.location.reload();
+          });
       } catch (err) {
         console.error('Import failed:', err);
         alert('Invalid backup file! Please ensure you uploaded a valid FinClear backup file.');

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Button } from "@/components/ui/Button";
 import { Trash2 } from "lucide-react";
+import { dbUpsertFixedCost, dbDeleteFixedCost } from "@/lib/db";
 
 interface FixedCostModalProps {
   isOpen: boolean;
@@ -65,12 +66,16 @@ export function FixedCostModal({ isOpen, onClose, costToEdit, typeFilter }: Fixe
       setFixedCosts([...fixedCosts, newCost]);
     }
     
+    // Background cloud sync
+    dbUpsertFixedCost(newCost).catch(console.error);
+
     onClose();
   };
 
   const handleDelete = () => {
     if (costToEdit) {
       setFixedCosts(fixedCosts.filter(c => c.id !== costToEdit.id));
+      dbDeleteFixedCost(costToEdit.id).catch(console.error);
       onClose();
     }
   };

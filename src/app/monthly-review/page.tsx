@@ -1,16 +1,17 @@
 "use client";
 
 import { useStore } from "@/lib/store";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { formatCurrency } from "@/lib/utils";
 import { parseISO, getMonth, getYear } from "date-fns";
 import { Card } from "@/components/ui/Card";
+import { dbUpsertSettings } from "@/lib/db";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const YEAR = 2026; // Static for MVP as per previous implementation
 
 export default function MonthlyReviewPage() {
-  const { income, fixedCosts, expenses, savings, idealExpenses, setIdealExpenses } = useStore();
+  const { income, fixedCosts, expenses, savings, idealExpenses, setIdealExpenses, idealSavings, setIdealSavings } = useStore();
   const [mounted, setMounted] = useState(false);
   
   // By default select the first 3 months + current month, or all if we want. Let's select all initially for easy viewing.
@@ -101,7 +102,11 @@ export default function MonthlyReviewPage() {
   });
 
   const idealDebtsTotal = getDebtSubtotalForMonth(new Date().getMonth());
-  const idealSavingsTotal = getSavingsSubtotalForMonth(new Date().getMonth());
+  
+  const idealSavingsTotal = savingsGoals.reduce((sum, goal) => {
+    const val = parseFloat(idealSavings[goal] || "0");
+    return sum + (isNaN(val) ? 0 : val);
+  }, 0);
   
   const idealExpensesTotal = expenseCategories.reduce((sum, cat) => {
     const val = parseFloat(idealExpenses[cat] || "0");
@@ -111,7 +116,15 @@ export default function MonthlyReviewPage() {
   const idealAvailable = monthlyIncome - totalFixedCosts - idealDebtsTotal - idealExpensesTotal - idealSavingsTotal;
 
   const handleIdealExpenseChange = (category: string, value: string) => {
-    setIdealExpenses({ ...idealExpenses, [category]: value });
+    const next = { ...idealExpenses, [category]: value };
+    setIdealExpenses(next);
+    dbUpsertSettings(next, idealSavings).catch(console.error);
+  };
+
+  const handleIdealSavingsChange = (goal: string, value: string) => {
+    const next = { ...idealSavings, [goal]: value };
+    setIdealSavings(next);
+    dbUpsertSettings(idealExpenses, next).catch(console.error);
   };
 
   return (
@@ -208,8 +221,14 @@ export default function MonthlyReviewPage() {
                   <td className="px-4 py-3 sticky left-0 bg-white z-10 border-r border-gray-200 text-gray-700">
                     {goal}
                   </td>
-                  <td className={`px-4 py-3 text-right font-mono bg-blue-50/30 border-r border-blue-100 ${(getSavingsForMonth(goal, new Date().getMonth()) > 0) ? 'text-gray-700' : 'text-gray-300'}`}>
-                    {getSavingsForMonth(goal, new Date().getMonth()) > 0 ? formatCurrency(getSavingsForMonth(goal, new Date().getMonth())) : '-'}
+                  <td className="px-2 py-2 text-right bg-blue-50/30 border-r border-blue-100 align-middle">
+                    <input 
+                      type="number"
+                      value={idealSavings[goal] ?? ""}
+                      onChange={(e) => handleIdealSavingsChange(goal, e.target.value)}
+                      placeholder="0"
+                      className="w-16 px-1 py-1 text-right text-xs font-mono border border-blue-200 rounded text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white hover:bg-white"
+                    />
                   </td>
                   {selectedMonths.map(m => {
                     const amount = getSavingsForMonth(goal, m);

@@ -4,9 +4,13 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import { AddExpenseModal } from "@/components/features/expenses/AddExpenseModal";
 import { Button } from "@/components/ui/Button";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 export function GlobalAddExpense() {
   const [isOpen, setIsOpen] = useState(false);
+  const { session } = useAuth();
+
+  if (!session) return null;
 
   return (
     <>

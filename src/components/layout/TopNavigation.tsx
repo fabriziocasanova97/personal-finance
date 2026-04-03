@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, ReceiptText, Banknote, PiggyBank, CalendarRange } from 'lucide-react';
+import { LayoutDashboard, ReceiptText, Banknote, PiggyBank, CalendarRange, LogOut } from 'lucide-react';
 import { DataSync } from './DataSync';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 const navItems = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -16,6 +17,9 @@ const navItems = [
 
 export function TopNavigation() {
   const pathname = usePathname();
+  const { session, signOut } = useAuth();
+
+  if (!session) return null;
 
   return (
     <nav className="bg-white border-b border-gray-200">
@@ -46,8 +50,15 @@ export function TopNavigation() {
               })}
             </div>
           </div>
-          <div className="flex items-center">
+          <div className="flex items-center space-x-2">
             <DataSync />
+            <button
+              onClick={signOut}
+              className="p-2 text-gray-500 hover:text-red-500 rounded-md hover:bg-red-50 transition-colors"
+              title="Log Out"
+            >
+              <LogOut className="w-5 h-5 sm:w-6 sm:h-6" />
+            </button>
           </div>
         </div>
       </div>

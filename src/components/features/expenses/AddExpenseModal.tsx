@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/Label";
 import { Button } from "@/components/ui/Button";
 import { Trash2 } from "lucide-react";
 import { format } from "date-fns";
+import { dbInsertExpense, dbDeleteExpense } from "@/lib/db";
 
 interface AddExpenseModalProps {
   isOpen: boolean;
@@ -72,12 +73,16 @@ export function AddExpenseModal({ isOpen, onClose, expenseToEdit }: AddExpenseMo
       setExpenses([...expenses, newExpense]);
     }
     
+    // Background cloud sync
+    dbInsertExpense(newExpense).catch(console.error);
+
     onClose();
   };
 
   const handleDelete = () => {
     if (expenseToEdit) {
       setExpenses(expenses.filter(exp => exp.id !== expenseToEdit.id));
+      dbDeleteExpense(expenseToEdit.id).catch(console.error);
       onClose();
     }
   };

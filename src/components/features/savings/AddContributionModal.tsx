@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/Label";
 import { Button } from "@/components/ui/Button";
 import { Trash2 } from "lucide-react";
 import { format } from "date-fns";
+import { dbInsertSavings, dbDeleteSavings } from "@/lib/db";
 
 type GoalType = 'Emergency Fund' | 'Tax Savings' | 'HYS Account';
 
@@ -67,12 +68,16 @@ export function AddContributionModal({ isOpen, onClose, contributionToEdit, defa
       setSavings([...savings, newContribution]);
     }
     
+    // Background cloud sync
+    dbInsertSavings(newContribution).catch(console.error);
+
     onClose();
   };
 
   const handleDelete = () => {
     if (contributionToEdit) {
       setSavings(savings.filter(s => s.id !== contributionToEdit.id));
+      dbDeleteSavings(contributionToEdit.id).catch(console.error);
       onClose();
     }
   };
