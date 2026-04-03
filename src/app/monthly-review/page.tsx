@@ -6,6 +6,8 @@ import { formatCurrency } from "@/lib/utils";
 import { parseISO, getMonth, getYear } from "date-fns";
 import { Card } from "@/components/ui/Card";
 import { dbUpsertSettings } from "@/lib/db";
+import { SpendingTrendChart } from "@/components/features/analytics/SpendingTrendChart";
+import { CategoryBreakdownChart } from "@/components/features/analytics/CategoryBreakdownChart";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const YEAR = 2026; // Static for MVP as per previous implementation
@@ -127,6 +129,20 @@ export default function MonthlyReviewPage() {
     dbUpsertSettings(idealExpenses, next).catch(console.error);
   };
 
+  const spendingTrendData = selectedMonths.map(m => {
+    return {
+      month: MONTHS[m],
+      Expenses: getExpenseSubtotalForMonth(m) + getDebtSubtotalForMonth(m),
+      Income: monthlyIncome,
+      Available: availablePerMonth[m]
+    };
+  });
+
+  const categoryBreakdownData = expenseCategories.map(cat => {
+    const total = selectedMonths.reduce((sum, m) => sum + getExpenseForMonth(cat, m), 0);
+    return { name: cat, value: total };
+  }).sort((a, b) => b.value - a.value);
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500 pb-8">
       
@@ -154,6 +170,19 @@ export default function MonthlyReviewPage() {
           ))}
         </div>
       </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="p-6 border border-gray-200">
+           <h3 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wider">Spending Trend</h3>
+           <SpendingTrendChart data={spendingTrendData} />
+        </Card>
+        
+        <Card className="p-6 border border-gray-200">
+           <h3 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wider">Category Breakdown</h3>
+           <div className="text-xs text-gray-400 mb-2">Total across selected months</div>
+           <CategoryBreakdownChart data={categoryBreakdownData} />
+        </Card>
+      </div>
 
       <Card className="overflow-hidden border border-gray-200">
         <div className="overflow-x-auto">
