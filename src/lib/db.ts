@@ -46,7 +46,7 @@ export const dbUpsertSettings = async (idealExpenses: Record<string, string>, id
     .upsert(
       { user_id: userId, ideal_expenses: idealExpenses, ideal_savings: idealSavings, updated_at: new Date().toISOString() },
       { onConflict: 'user_id' }
-    );
+    ).throwOnError();
 };
 
 export const dbInsertExpense = async (expense: Expense) => {
@@ -60,11 +60,11 @@ export const dbInsertExpense = async (expense: Expense) => {
     description: expense.description,
     category: expense.category,
     amount: expense.amount
-  });
+  }).throwOnError();
 };
 
 export const dbDeleteExpense = async (id: string) => {
-  return supabase.from('expenses').delete().eq('id', id);
+  return supabase.from('expenses').delete().eq('id', id).throwOnError();
 };
 
 export const dbUpsertFixedCost = async (cost: FixedCost) => {
@@ -79,11 +79,11 @@ export const dbUpsertFixedCost = async (cost: FixedCost) => {
     category: cost.category,
     type: cost.type,
     enddate: cost.monthsLeft ? new Date(new Date().setMonth(new Date().getMonth() + cost.monthsLeft)).toISOString() : null,
-  });
+  }).throwOnError();
 };
 
 export const dbDeleteFixedCost = async (id: string) => {
-  return supabase.from('fixed_costs').delete().eq('id', id);
+  return supabase.from('fixed_costs').delete().eq('id', id).throwOnError();
 };
 
 export const dbInsertSavings = async (savings: Savings) => {
@@ -97,11 +97,11 @@ export const dbInsertSavings = async (savings: Savings) => {
     amount: savings.amount,
     date: savings.date,
     note: savings.note
-  });
+  }).throwOnError();
 };
 
 export const dbDeleteSavings = async (id: string) => {
-  return supabase.from('savings').delete().eq('id', id);
+  return supabase.from('savings').delete().eq('id', id).throwOnError();
 };
 
 // Full sync method to be used by DataSync
@@ -111,15 +111,22 @@ export const dbOverwriteCloudWithLocal = async (localState: any) => {
 
   try {
     // 1. Settings
-    await dbUpsertSettings(localState.idealExpenses || {}, localState.idealSavings || {});
+    if (localState.idealExpenses || localState.idealSavings) {
+      // Intentionally not blocking on settings failure in case migration wasn't run
+      await dbUpsertSettings(localState.idealExpenses || {}, localState.idealSavings || {}).catch(e => console.warn('Settings upsert failed:', e));
+    }
     
     // 2. Expenses
     if (localState.expenses?.length > 0) {
       const expensesToInsert = localState.expenses.map((e: any) => ({
-        ...e,
+        id: e.id,
         user_id: userId,
+        date: e.date,
+        description: e.description,
+        category: e.category,
+        amount: e.amount
       }));
-      await supabase.from('expenses').upsert(expensesToInsert, { onConflict: 'id' });
+      await supabase.from('expenses').upsert(expensesToInsert, { onConflict: 'id' }).throwOnError();
     }
 
     // 3. Fixed Costs
@@ -133,16 +140,20 @@ export const dbOverwriteCloudWithLocal = async (localState: any) => {
         type: fc.type,
         enddate: fc.monthsLeft ? new Date(new Date().setMonth(new Date().getMonth() + fc.monthsLeft)).toISOString() : null,
       }));
-      await supabase.from('fixed_costs').upsert(fcToInsert, { onConflict: 'id' });
+      await supabase.from('fixed_costs').upsert(fcToInsert, { onConflict: 'id' }).throwOnError();
     }
 
     // 4. Savings
     if (localState.savings?.length > 0) {
        const svToInsert = localState.savings.map((s: any) => ({
-         ...s,
-         user_id: userId
+         id: s.id,
+         user_id: userId,
+         goal: s.goal,
+         amount: s.amount,
+         date: s.date,
+         note: s.note || null
        }));
-       await supabase.from('savings').upsert(svToInsert, { onConflict: 'id' });
+       await supabase.from('savings').upsert(svToInsert, { onConflict: 'id' }).throwOnError();
     }
     
     return true;
