@@ -13,13 +13,7 @@ export const dbFetchAll = async () => {
   const userId = await getUserId();
   if (!userId) return null;
 
-  const [
-    { data: expenses },
-    { data: fixedCosts },
-    { data: savings },
-    { data: budgets },
-    { data: settings },
-  ] = await Promise.all([
+  const [expensesRes, fixedCostsRes, savingsRes, budgetsRes, settingsRes] = await Promise.all([
     supabase.from('expenses').select('*'),
     supabase.from('fixed_costs').select('*'),
     supabase.from('savings').select('*'),
@@ -27,13 +21,21 @@ export const dbFetchAll = async () => {
     supabase.from('user_settings').select('ideal_expenses, ideal_savings').maybeSingle(),
   ]);
 
+  // If any core read failed, the cloud state is unknown — callers must keep
+  // local data instead of treating this as "cloud is empty" (data-loss bug H2).
+  const readError = expensesRes.error || fixedCostsRes.error || savingsRes.error || budgetsRes.error;
+  if (readError) {
+    console.error('dbFetchAll failed, keeping local data:', readError);
+    return null;
+  }
+
   return {
-    expenses: expenses || [],
-    fixedCosts: (fixedCosts || []).map(fc => ({ ...fc, monthsLeft: fc.months_left ?? null })), // mapped property? (ignoring enddate mapping if not present)
-    savings: savings || [],
-    budgets: budgets || [],
-    idealExpenses: settings?.ideal_expenses || {},
-    idealSavings: settings?.ideal_savings || {},
+    expenses: expensesRes.data || [],
+    fixedCosts: (fixedCostsRes.data || []).map(fc => ({ ...fc, monthsLeft: fc.months_left ?? null })), // mapped property? (ignoring enddate mapping if not present)
+    savings: savingsRes.data || [],
+    budgets: budgetsRes.data || [],
+    idealExpenses: settingsRes.data?.ideal_expenses || {},
+    idealSavings: settingsRes.data?.ideal_savings || {},
   };
 };
 
