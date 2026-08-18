@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/Button";
 import { Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { dbInsertExpense, dbDeleteExpense } from "@/lib/db";
+import { EXPENSE_CATEGORIES } from "@/lib/categories";
+import { addExpense } from "@/lib/expenses";
 
 interface AddExpenseModalProps {
   isOpen: boolean;
@@ -16,19 +18,7 @@ interface AddExpenseModalProps {
   expenseToEdit?: Expense | null;
 }
 
-export const EXPENSE_CATEGORIES = [
-  "Groceries",
-  "Dining Out",
-  "Coffee/Snacks",
-  "Transportation",
-  "Shopping",
-  "Entertainment",
-  "Health",
-  "Personal Care",
-  "Dominion energy",
-  "Washington gas",
-  "Other"
-];
+export { EXPENSE_CATEGORIES } from "@/lib/categories";
 
 export function AddExpenseModal({ isOpen, onClose, expenseToEdit }: AddExpenseModalProps) {
   const { expenses, setExpenses } = useStore();
@@ -36,7 +26,7 @@ export function AddExpenseModal({ isOpen, onClose, expenseToEdit }: AddExpenseMo
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState(EXPENSE_CATEGORIES[0]);
+  const [category, setCategory] = useState<string>(EXPENSE_CATEGORIES[0]);
 
   useEffect(() => {
     if (expenseToEdit && isOpen) {
@@ -58,23 +48,22 @@ export function AddExpenseModal({ isOpen, onClose, expenseToEdit }: AddExpenseMo
     
     if (isNaN(val) || !date || !description || !category) return;
 
-    const newExpense: Expense = {
-      id: expenseToEdit ? expenseToEdit.id : crypto.randomUUID(),
-      user_id: "temp-user",
-      amount: val,
-      date,
-      description,
-      category,
-    };
-
     if (expenseToEdit) {
-      setExpenses(expenses.map(exp => exp.id === expenseToEdit.id ? newExpense : exp));
+      const updatedExpense: Expense = {
+        id: expenseToEdit.id,
+        user_id: "temp-user",
+        amount: val,
+        date,
+        description,
+        category,
+      };
+      setExpenses(expenses.map(exp => exp.id === expenseToEdit.id ? updatedExpense : exp));
+
+      // Background cloud sync
+      dbInsertExpense(updatedExpense).catch(console.error);
     } else {
-      setExpenses([...expenses, newExpense]);
+      addExpense({ amount: val, description, category, date });
     }
-    
-    // Background cloud sync
-    dbInsertExpense(newExpense).catch(console.error);
 
     onClose();
   };

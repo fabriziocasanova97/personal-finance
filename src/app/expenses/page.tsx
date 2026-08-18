@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { formatCurrency } from "@/lib/utils";
 import { AddExpenseModal, EXPENSE_CATEGORIES } from "@/components/features/expenses/AddExpenseModal";
 import { WeeklyExpenseGrid } from "@/components/features/expenses/WeeklyExpenseGrid";
+import { QuickExpenseInput } from "@/components/features/expenses/QuickExpenseInput";
 import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval } from "date-fns";
 import { Plus } from "lucide-react";
 
@@ -95,6 +96,7 @@ export default function ExpensesPage() {
         </Button>
       </div>
 
+      <QuickExpenseInput />
       <WeeklyExpenseGrid expenses={expenses} currentDate={startDate ? parseISO(startDate) : new Date()} />
 
       <section>
