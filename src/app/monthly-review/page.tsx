@@ -10,7 +10,7 @@ import { SpendingTrendChart } from "@/components/features/analytics/SpendingTren
 import { CategoryBreakdownChart } from "@/components/features/analytics/CategoryBreakdownChart";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const YEAR = 2026; // Static for MVP as per previous implementation
+const YEAR = new Date().getFullYear();
 
 export default function MonthlyReviewPage() {
   const { income, fixedCosts, expenses, savings, idealExpenses, setIdealExpenses, idealSavings, setIdealSavings } = useStore();

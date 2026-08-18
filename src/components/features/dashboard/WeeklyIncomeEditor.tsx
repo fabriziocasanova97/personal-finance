@@ -1,6 +1,7 @@
 "use client";
 
 import { useStore, Income } from "@/lib/store";
+import { dbUpsertIncome } from "@/lib/db";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -30,6 +31,8 @@ export function WeeklyIncomeEditor() {
         updated_at: new Date().toISOString()
       };
       setIncome(newIncome);
+      // Background cloud sync
+      dbUpsertIncome(newIncome).catch(console.error);
     }
     setIsEditing(false);
   };

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useStore, Budget } from "@/lib/store";
+import { dbUpsertBudget, dbDeleteBudget } from "@/lib/db";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
@@ -35,6 +36,7 @@ export function BudgetModal({ isOpen, onClose, category, existingBudget }: Budge
     if (isNaN(val) || val <= 0) {
       if (existingBudget) {
         setBudgets(budgets.filter(b => b.id !== existingBudget.id));
+        dbDeleteBudget(existingBudget.id).catch(console.error);
       }
       onClose();
       return;
@@ -52,7 +54,10 @@ export function BudgetModal({ isOpen, onClose, category, existingBudget }: Budge
     } else {
       setBudgets([...budgets, newBudget]);
     }
-    
+
+    // Background cloud sync
+    dbUpsertBudget(newBudget).catch(console.error);
+
     onClose();
   };
 

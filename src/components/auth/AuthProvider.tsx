@@ -34,6 +34,7 @@ function applyCloudData(cloudData: NonNullable<Awaited<ReturnType<typeof dbFetch
   store.setFixedCosts(mergeById(cloudData.fixedCosts, store.fixedCosts));
   store.setSavings(mergeById(cloudData.savings, store.savings));
   store.setBudgets(mergeById(cloudData.budgets, store.budgets));
+  if (cloudData.income) store.setIncome(cloudData.income);
   if (Object.keys(cloudData.idealExpenses).length > 0) store.setIdealExpenses(cloudData.idealExpenses);
   if (Object.keys(cloudData.idealSavings).length > 0) store.setIdealSavings(cloudData.idealSavings);
 }

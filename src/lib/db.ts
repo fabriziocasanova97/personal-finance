@@ -14,17 +14,18 @@ export const dbFetchAll = async () => {
   const userId = await getUserId();
   if (!userId) return null;
 
-  const [expensesRes, fixedCostsRes, savingsRes, budgetsRes, settingsRes] = await Promise.all([
+  const [expensesRes, fixedCostsRes, savingsRes, budgetsRes, incomeRes, settingsRes] = await Promise.all([
     supabase.from('expenses').select('*'),
     supabase.from('fixed_costs').select('*'),
     supabase.from('savings').select('*'),
     supabase.from('budgets').select('*'),
+    supabase.from('income').select('*').order('updated_at', { ascending: false }).limit(1).maybeSingle(),
     supabase.from('user_settings').select('ideal_expenses, ideal_savings').maybeSingle(),
   ]);
 
   // If any core read failed, the cloud state is unknown — callers must keep
   // local data instead of treating this as "cloud is empty" (data-loss bug H2).
-  const readError = expensesRes.error || fixedCostsRes.error || savingsRes.error || budgetsRes.error;
+  const readError = expensesRes.error || fixedCostsRes.error || savingsRes.error || budgetsRes.error || incomeRes.error;
   if (readError) {
     console.error('dbFetchAll failed, keeping local data:', readError);
     return null;
@@ -40,6 +41,7 @@ export const dbFetchAll = async () => {
     })),
     savings: savingsRes.data || [],
     budgets: budgetsRes.data || [],
+    income: incomeRes.data as Income | null,
     idealExpenses: settingsRes.data?.ideal_expenses || {},
     idealSavings: settingsRes.data?.ideal_savings || {},
   };
@@ -55,6 +57,34 @@ export const dbUpsertSettings = async (idealExpenses: Record<string, string>, id
       { user_id: userId, ideal_expenses: idealExpenses, ideal_savings: idealSavings, updated_at: new Date().toISOString() },
       { onConflict: 'user_id' }
     ).throwOnError();
+};
+
+export const dbUpsertIncome = async (income: Income) => {
+  const userId = await getUserId();
+  if (!userId) return;
+
+  return supabase.from('income').upsert({
+    id: income.id,
+    user_id: userId,
+    weekly_amount: income.weekly_amount,
+    updated_at: new Date().toISOString(),
+  }).throwOnError();
+};
+
+export const dbUpsertBudget = async (budget: Budget) => {
+  const userId = await getUserId();
+  if (!userId) return;
+
+  return supabase.from('budgets').upsert({
+    id: budget.id,
+    user_id: userId,
+    category: budget.category,
+    amount: budget.amount,
+  }).throwOnError();
+};
+
+export const dbDeleteBudget = async (id: string) => {
+  return supabase.from('budgets').delete().eq('id', id).throwOnError();
 };
 
 export const dbInsertExpense = async (expense: Expense) => {
@@ -119,6 +149,25 @@ export const dbOverwriteCloudWithLocal = async (localState: any) => {
   if (!userId || !localState) return;
 
   try {
+    // 0. Income and budgets
+    if (localState.income) {
+      await supabase.from('income').upsert({
+        id: localState.income.id,
+        user_id: userId,
+        weekly_amount: localState.income.weekly_amount,
+        updated_at: localState.income.updated_at || new Date().toISOString(),
+      }).throwOnError();
+    }
+    if (localState.budgets?.length > 0) {
+      const budgetsToInsert = localState.budgets.map((b: any) => ({
+        id: b.id,
+        user_id: userId,
+        category: b.category,
+        amount: b.amount,
+      }));
+      await supabase.from('budgets').upsert(budgetsToInsert, { onConflict: 'id' }).throwOnError();
+    }
+
     // 1. Settings
     if (localState.idealExpenses || localState.idealSavings) {
       // Intentionally not blocking on settings failure in case migration wasn't run
