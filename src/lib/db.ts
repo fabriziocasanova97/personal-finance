@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { differenceInCalendarMonths } from 'date-fns';
 import { Expense, FixedCost, Savings, Budget, Income } from './store';
 
 /**
@@ -31,7 +32,12 @@ export const dbFetchAll = async () => {
 
   return {
     expenses: expensesRes.data || [],
-    fixedCosts: (fixedCostsRes.data || []).map(fc => ({ ...fc, monthsLeft: fc.months_left ?? null })), // mapped property? (ignoring enddate mapping if not present)
+    // The DB stores the durable `enddate`; the app works with time-relative
+    // `monthsLeft`, so derive it on read (0 = paid off, clamped) (H5).
+    fixedCosts: (fixedCostsRes.data || []).map(({ enddate, ...fc }) => ({
+      ...fc,
+      monthsLeft: enddate ? Math.max(0, differenceInCalendarMonths(new Date(enddate), new Date())) : null,
+    })),
     savings: savingsRes.data || [],
     budgets: budgetsRes.data || [],
     idealExpenses: settingsRes.data?.ideal_expenses || {},
@@ -80,7 +86,8 @@ export const dbUpsertFixedCost = async (cost: FixedCost) => {
     amount: cost.amount,
     category: cost.category,
     type: cost.type,
-    enddate: cost.monthsLeft ? new Date(new Date().setMonth(new Date().getMonth() + cost.monthsLeft)).toISOString() : null,
+    // != null so a paid-off debt (monthsLeft 0) keeps its enddate instead of null (H5)
+    enddate: cost.monthsLeft != null ? new Date(new Date().setMonth(new Date().getMonth() + cost.monthsLeft)).toISOString() : null,
   }).throwOnError();
 };
 
@@ -140,7 +147,7 @@ export const dbOverwriteCloudWithLocal = async (localState: any) => {
         amount: fc.amount,
         category: fc.category,
         type: fc.type,
-        enddate: fc.monthsLeft ? new Date(new Date().setMonth(new Date().getMonth() + fc.monthsLeft)).toISOString() : null,
+        enddate: fc.monthsLeft != null ? new Date(new Date().setMonth(new Date().getMonth() + fc.monthsLeft)).toISOString() : null,
       }));
       await supabase.from('fixed_costs').upsert(fcToInsert, { onConflict: 'id' }).throwOnError();
     }
