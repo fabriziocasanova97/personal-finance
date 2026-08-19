@@ -3,6 +3,7 @@
 import { Download, Upload } from 'lucide-react';
 import { useRef } from 'react';
 import { dbOverwriteCloudWithLocal } from '@/lib/db';
+import { showToast, queueToastAfterReload } from '@/lib/toast';
 
 export function DataSync() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -11,7 +12,7 @@ export function DataSync() {
     try {
       const data = localStorage.getItem('finclear_data');
       if (!data) {
-        alert('No data found to export!');
+        showToast('No data found to export.');
         return;
       }
       
@@ -26,7 +27,7 @@ export function DataSync() {
       URL.revokeObjectURL(url);
     } catch (err) {
       console.error('Export failed:', err);
-      alert('Failed to export data.');
+      showToast('Failed to export data.');
     }
   };
 
@@ -50,21 +51,21 @@ export function DataSync() {
         // Push the imported data to cloud if authenticated
         dbOverwriteCloudWithLocal(parsed.state)
           .then(() => {
-            alert('Data imported and synced to cloud successfully! The dashboard will now reload.');
+            queueToastAfterReload('Backup imported and synced to cloud.', 'success');
             window.location.reload();
           })
           .catch((err) => {
             console.error('Cloud upload failed:', err);
-            alert('Data imported locally, but failed to sync to cloud. The dashboard will now reload.');
+            queueToastAfterReload('Backup imported on this device, but cloud sync failed — check the console and try again later.', 'error');
             window.location.reload();
           });
       } catch (err) {
         console.error('Import failed:', err);
-        alert('Invalid backup file! Please ensure you uploaded a valid FinClear backup file.');
+        showToast('Invalid backup file — upload a FinClear backup (.json).');
       }
     };
     reader.onerror = () => {
-      alert('Error reading the file.');
+      showToast('Could not read the file.');
     };
     
     reader.readAsText(file);

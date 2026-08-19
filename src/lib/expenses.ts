@@ -1,5 +1,6 @@
 import { useStore, Expense } from "@/lib/store";
 import { dbInsertExpense } from "@/lib/db";
+import { reportSyncError } from "@/lib/toast";
 
 export function addExpense(input: {
   amount: number;
@@ -17,7 +18,7 @@ export function addExpense(input: {
   setExpenses([...expenses, newExpense]);
 
   // Background cloud sync
-  dbInsertExpense(newExpense).catch(console.error);
+  dbInsertExpense(newExpense).catch(reportSyncError('expense'));
 
   return newExpense;
 }

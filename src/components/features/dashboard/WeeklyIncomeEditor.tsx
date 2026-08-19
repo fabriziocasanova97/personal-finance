@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/Label";
 import { useState, useEffect } from "react";
 import { formatCurrency } from "@/lib/utils";
 import { Pencil, Check, X } from "lucide-react";
+import { reportSyncError } from "@/lib/toast";
 
 export function WeeklyIncomeEditor() {
   const { income, setIncome } = useStore();
@@ -32,7 +33,7 @@ export function WeeklyIncomeEditor() {
       };
       setIncome(newIncome);
       // Background cloud sync
-      dbUpsertIncome(newIncome).catch(console.error);
+      dbUpsertIncome(newIncome).catch(reportSyncError('income'));
     }
     setIsEditing(false);
   };

@@ -11,6 +11,7 @@ import { format } from "date-fns";
 import { dbInsertExpense, dbDeleteExpense } from "@/lib/db";
 import { EXPENSE_CATEGORIES } from "@/lib/categories";
 import { addExpense } from "@/lib/expenses";
+import { reportSyncError } from "@/lib/toast";
 
 interface AddExpenseModalProps {
   isOpen: boolean;
@@ -60,7 +61,7 @@ export function AddExpenseModal({ isOpen, onClose, expenseToEdit }: AddExpenseMo
       setExpenses(expenses.map(exp => exp.id === expenseToEdit.id ? updatedExpense : exp));
 
       // Background cloud sync
-      dbInsertExpense(updatedExpense).catch(console.error);
+      dbInsertExpense(updatedExpense).catch(reportSyncError('expense'));
     } else {
       addExpense({ amount: val, description, category, date });
     }
@@ -71,7 +72,7 @@ export function AddExpenseModal({ isOpen, onClose, expenseToEdit }: AddExpenseMo
   const handleDelete = () => {
     if (expenseToEdit) {
       setExpenses(expenses.filter(exp => exp.id !== expenseToEdit.id));
-      dbDeleteExpense(expenseToEdit.id).catch(console.error);
+      dbDeleteExpense(expenseToEdit.id).catch(reportSyncError('deletion'));
       onClose();
     }
   };

@@ -1,6 +1,16 @@
 import { supabase } from './supabase';
 import { differenceInCalendarMonths } from 'date-fns';
 import { Expense, FixedCost, Savings, Budget, Income } from './store';
+import { showToast } from './toast';
+
+// Writers throw this instead of silently no-oping when there is no session,
+// so the caller's .catch(reportSyncError(...)) surfaces it to the user.
+const requireUserId = async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  const userId = session?.user.id;
+  if (!userId) throw new Error('Not signed in — the change was not synced to the cloud');
+  return userId;
+};
 
 /**
  * Validates the user session and returns user id
@@ -28,6 +38,7 @@ export const dbFetchAll = async () => {
   const readError = expensesRes.error || fixedCostsRes.error || savingsRes.error || budgetsRes.error || incomeRes.error;
   if (readError) {
     console.error('dbFetchAll failed, keeping local data:', readError);
+    showToast("Couldn't load your cloud data — showing what's saved on this device.");
     return null;
   }
 
@@ -48,8 +59,7 @@ export const dbFetchAll = async () => {
 };
 
 export const dbUpsertSettings = async (idealExpenses: Record<string, string>, idealSavings: Record<string, string>) => {
-  const userId = await getUserId();
-  if (!userId) return;
+  const userId = await requireUserId();
 
   await supabase
     .from('user_settings')
@@ -60,8 +70,7 @@ export const dbUpsertSettings = async (idealExpenses: Record<string, string>, id
 };
 
 export const dbUpsertIncome = async (income: Income) => {
-  const userId = await getUserId();
-  if (!userId) return;
+  const userId = await requireUserId();
 
   return supabase.from('income').upsert({
     id: income.id,
@@ -72,8 +81,7 @@ export const dbUpsertIncome = async (income: Income) => {
 };
 
 export const dbUpsertBudget = async (budget: Budget) => {
-  const userId = await getUserId();
-  if (!userId) return;
+  const userId = await requireUserId();
 
   return supabase.from('budgets').upsert({
     id: budget.id,
@@ -88,8 +96,7 @@ export const dbDeleteBudget = async (id: string) => {
 };
 
 export const dbInsertExpense = async (expense: Expense) => {
-  const userId = await getUserId();
-  if (!userId) return;
+  const userId = await requireUserId();
 
   return supabase.from('expenses').upsert({
     id: expense.id,
@@ -106,8 +113,7 @@ export const dbDeleteExpense = async (id: string) => {
 };
 
 export const dbUpsertFixedCost = async (cost: FixedCost) => {
-  const userId = await getUserId();
-  if (!userId) return;
+  const userId = await requireUserId();
 
   return supabase.from('fixed_costs').upsert({
     id: cost.id,
@@ -126,8 +132,7 @@ export const dbDeleteFixedCost = async (id: string) => {
 };
 
 export const dbInsertSavings = async (savings: Savings) => {
-  const userId = await getUserId();
-  if (!userId) return;
+  const userId = await requireUserId();
 
   return supabase.from('savings').upsert({
     id: savings.id,
@@ -145,8 +150,8 @@ export const dbDeleteSavings = async (id: string) => {
 
 // Full sync method to be used by DataSync
 export const dbOverwriteCloudWithLocal = async (localState: any) => {
-  const userId = await getUserId();
-  if (!userId || !localState) return;
+  const userId = await requireUserId();
+  if (!localState) return;
 
   try {
     // 0. Income and budgets

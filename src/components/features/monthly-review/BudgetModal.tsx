@@ -7,6 +7,7 @@ import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Button } from "@/components/ui/Button";
+import { reportSyncError } from "@/lib/toast";
 
 interface BudgetModalProps {
   isOpen: boolean;
@@ -36,7 +37,7 @@ export function BudgetModal({ isOpen, onClose, category, existingBudget }: Budge
     if (isNaN(val) || val <= 0) {
       if (existingBudget) {
         setBudgets(budgets.filter(b => b.id !== existingBudget.id));
-        dbDeleteBudget(existingBudget.id).catch(console.error);
+        dbDeleteBudget(existingBudget.id).catch(reportSyncError('budget'));
       }
       onClose();
       return;
@@ -56,7 +57,7 @@ export function BudgetModal({ isOpen, onClose, category, existingBudget }: Budge
     }
 
     // Background cloud sync
-    dbUpsertBudget(newBudget).catch(console.error);
+    dbUpsertBudget(newBudget).catch(reportSyncError('budget'));
 
     onClose();
   };

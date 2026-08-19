@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/Card";
 import { dbUpsertSettings } from "@/lib/db";
 import { SpendingTrendChart } from "@/components/features/analytics/SpendingTrendChart";
 import { CategoryBreakdownChart } from "@/components/features/analytics/CategoryBreakdownChart";
+import { reportSyncError } from "@/lib/toast";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const YEAR = new Date().getFullYear();
@@ -120,13 +121,13 @@ export default function MonthlyReviewPage() {
   const handleIdealExpenseChange = (category: string, value: string) => {
     const next = { ...idealExpenses, [category]: value };
     setIdealExpenses(next);
-    dbUpsertSettings(next, idealSavings).catch(console.error);
+    dbUpsertSettings(next, idealSavings).catch(reportSyncError('ideal amounts'));
   };
 
   const handleIdealSavingsChange = (goal: string, value: string) => {
     const next = { ...idealSavings, [goal]: value };
     setIdealSavings(next);
-    dbUpsertSettings(idealExpenses, next).catch(console.error);
+    dbUpsertSettings(idealExpenses, next).catch(reportSyncError('ideal amounts'));
   };
 
   const spendingTrendData = selectedMonths.map(m => {
