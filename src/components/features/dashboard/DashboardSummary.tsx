@@ -26,24 +26,41 @@ export function DashboardSummary() {
   const leftToSpend = monthlyIncome - monthlyFixedCosts - totalSaved - totalExpenses;
 
   const cards = [
-    { label: "Monthly Income", value: monthlyIncome, icon: Wallet, color: "text-blue-500" },
-    { label: "Fixed Costs", value: monthlyFixedCosts, icon: Receipt, color: "text-amber-500" },
-    { label: "Daily Spending", value: totalExpenses, icon: CreditCard, color: "text-red-500" },
-    { label: "Saved", value: totalSaved, icon: PiggyBank, color: "text-purple-500" },
-    { label: "Left to Spend", value: leftToSpend, icon: CircleDollarSign, color: "text-accent" },
+    { label: "Left to Spend", value: leftToSpend, icon: CircleDollarSign, color: "text-accent", hero: true },
+    { label: "Monthly Income", value: monthlyIncome, icon: Wallet, color: "text-blue-500", hero: false },
+    { label: "Fixed Costs", value: monthlyFixedCosts, icon: Receipt, color: "text-amber-500", hero: false },
+    { label: "Daily Spending", value: totalExpenses, icon: CreditCard, color: "text-red-500", hero: false },
+    { label: "Saved", value: totalSaved, icon: PiggyBank, color: "text-purple-500", hero: false },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
       {cards.map((stat, i) => (
-        <Card key={i}>
-          <CardContent className="p-4 flex flex-col items-center justify-center text-center space-y-2">
-            <div className={`p-3 rounded-full bg-gray-50 flex items-center justify-center ${stat.color}`}>
-              <stat.icon className="w-6 h-6" />
+        <Card
+          key={i}
+          className={stat.hero ? "col-span-2 lg:col-span-1 lg:order-last border-accent/30 bg-accent/5" : "min-w-0"}
+        >
+          <CardContent
+            className={`flex flex-col items-center justify-center text-center ${
+              stat.hero ? "p-5 md:p-4 space-y-2" : "p-3 md:p-4 space-y-1.5 md:space-y-2"
+            }`}
+          >
+            <div
+              className={`rounded-full bg-gray-50 flex items-center justify-center ${stat.color} ${
+                stat.hero ? "p-3" : "p-2 md:p-3"
+              }`}
+            >
+              <stat.icon className={stat.hero ? "w-6 h-6" : "w-4 h-4 md:w-6 md:h-6"} />
             </div>
-            <div>
-              <p className="text-xs text-gray-500 uppercase font-semibold tracking-wider font-sans">{stat.label}</p>
-              <h4 className="text-xl font-mono font-bold text-gray-900 mt-1">{formatCurrency(stat.value)}</h4>
+            <div className="min-w-0 w-full">
+              <p className="text-xs text-gray-500 uppercase font-semibold tracking-wider font-sans truncate">{stat.label}</p>
+              <h4
+                className={`font-mono font-bold text-gray-900 mt-1 tabular-nums truncate ${
+                  stat.hero ? "text-3xl lg:text-xl" : "text-lg md:text-xl"
+                }`}
+              >
+                {formatCurrency(stat.value)}
+              </h4>
             </div>
           </CardContent>
         </Card>

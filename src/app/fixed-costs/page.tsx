@@ -1,13 +1,14 @@
 "use client";
 
 import { useStore, FixedCost } from "@/lib/store";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import { Card } from "@/components/ui/Card";
 import { FilterChip } from "@/components/ui/FilterChip";
 import { Button } from "@/components/ui/Button";
+import { ListRow } from "@/components/ui/ListRow";
 import { useState, useEffect } from "react";
 import { formatCurrency } from "@/lib/utils";
 import { FixedCostModal } from "@/components/features/fixed-costs/FixedCostModal";
-import { format, parseISO, addMonths } from "date-fns";
+import { format, addMonths } from "date-fns";
 import { Plus } from "lucide-react";
 
 export default function FixedCostsPage() {
@@ -47,51 +48,65 @@ export default function FixedCostsPage() {
     setIsModalOpen(true);
   };
 
-  const TableHeader = ({ type }: { type: 'fixed' | 'debt' }) => (
-    <div className="grid grid-cols-12 gap-4 py-3 px-4 bg-gray-50 border-y border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-      <div className={type === 'fixed' ? "col-span-5" : "col-span-3"}>Name</div>
-      <div className={type === 'fixed' ? "col-span-4" : "col-span-3"}>Category</div>
-      <div className={type === 'fixed' ? "col-span-3 text-right" : "col-span-2 text-right"}>Amount</div>
-      {type === 'debt' && <div className="col-span-2 text-right">Months Left</div>}
-      {type === 'debt' && <div className="col-span-2 text-right">End Date</div>}
+  const ListHeader = ({ type }: { type: 'fixed' | 'debt' }) => (
+    <div className="hidden md:flex items-center justify-between gap-3 py-3 px-4 bg-gray-50 border-b border-gray-200 text-xs font-mono uppercase tracking-wider text-gray-500">
+      <span>{type === 'fixed' ? 'Name · Category' : 'Name · Category · Term'}</span>
+      <span>Amount</span>
     </div>
   );
 
+  const CategoryChip = ({ category }: { category: string }) => (
+    <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-800">
+      {category}
+    </span>
+  );
+
   const renderRow = (item: FixedCost) => (
-    <div 
-      key={item.id} 
+    <ListRow
+      key={item.id}
       onClick={() => openModal(item.type, item)}
-      className="grid grid-cols-12 gap-4 py-3 px-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors group items-center"
-    >
-      <div className={item.type === 'fixed' ? "col-span-5 font-medium text-gray-900" : "col-span-3 font-medium text-gray-900"}>{item.name}</div>
-      <div className={item.type === 'fixed' ? "col-span-4" : "col-span-3"}>
-        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-          {item.category}
-        </span>
-      </div>
-      <div className={item.type === 'fixed' ? "col-span-3 text-right font-mono font-medium text-gray-900" : "col-span-2 text-right font-mono font-medium text-gray-900"}>{formatCurrency(item.amount)}</div>
-      {item.type === 'debt' && (
-        <div className="col-span-2 text-right text-sm text-gray-500 font-medium">
-          {item.monthsLeft ? `${item.monthsLeft} mo` : '-'}
-        </div>
-      )}
-      {item.type === 'debt' && (
-        <div className="col-span-2 text-right text-sm text-gray-500 font-medium">
-          {item.monthsLeft ? format(addMonths(new Date(), item.monthsLeft), 'MMM yyyy') : '-'}
-        </div>
-      )}
+      title={item.name}
+      meta={
+        item.type === 'fixed' ? (
+          <CategoryChip category={item.category} />
+        ) : (
+          <>
+            <CategoryChip category={item.category} />
+            {item.monthsLeft ? (
+              <>
+                <span className="inline-flex items-center px-2 py-0.5 text-xs font-mono tabular-nums bg-amber-50 text-amber-600">
+                  {item.monthsLeft} {item.monthsLeft === 1 ? 'month' : 'months'} left
+                </span>
+                <span className="text-xs text-gray-500">
+                  Ends {format(addMonths(new Date(), item.monthsLeft), 'MMM yyyy')}
+                </span>
+              </>
+            ) : (
+              <span className="text-xs text-gray-500">No end date</span>
+            )}
+          </>
+        )
+      }
+      trailing={formatCurrency(item.amount)}
+    />
+  );
+
+  const Subtotal = ({ value }: { value: number }) => (
+    <div className="bg-gray-50/50 py-3 px-4 border-t border-gray-200 flex justify-between sm:justify-end items-center gap-4 sm:gap-8">
+      <span className="text-xs font-mono font-semibold text-gray-500 uppercase tracking-wider">Subtotal</span>
+      <span className="text-lg font-mono tabular-nums font-bold text-gray-900">{formatCurrency(value)}</span>
     </div>
   );
 
   return (
-    <div className="max-w-7xl mx-auto w-full space-y-8">
+    <div className="max-w-7xl mx-auto w-full min-w-0 space-y-6 sm:space-y-8">
       
       {/* Fixed Costs Section */}
       <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-heading font-bold text-gray-900">Fixed Costs</h2>
-          <Button onClick={() => openModal('fixed')} size="sm">
-            <Plus className="w-4 h-4 mr-1" /> Add Fixed Cost
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <h1 className="text-2xl sm:text-3xl font-heading font-bold text-gray-900 min-w-0">Fixed Costs</h1>
+          <Button onClick={() => openModal('fixed')} className="shrink-0">
+            <Plus className="w-4 h-4 mr-1" /> <span className="hidden sm:inline">Add Fixed Cost</span><span className="sm:hidden">Add</span>
           </Button>
         </div>
         
@@ -108,7 +123,7 @@ export default function FixedCostsPage() {
         </div>
 
         <Card className="overflow-hidden">
-          <TableHeader type="fixed" />
+          <ListHeader type="fixed" />
           {filteredFixed.length > 0 ? (
             <div className="divide-y divide-gray-100">
               {filteredFixed.map(renderRow)}
@@ -116,18 +131,15 @@ export default function FixedCostsPage() {
           ) : (
              <div className="py-8 text-center text-sm text-gray-500">No fixed costs found in this category.</div>
           )}
-          <div className="bg-gray-50/50 py-3 px-4 border-t border-gray-200 flex justify-end items-center">
-             <span className="text-sm font-semibold text-gray-500 mr-8 uppercase tracking-wider">Subtotal</span>
-             <span className="text-lg font-mono font-bold text-gray-900">{formatCurrency(fixedSubtotal)}</span>
-          </div>
+          <Subtotal value={fixedSubtotal} />
         </Card>
       </section>
 
       {/* Debts Section */}
-      <section className="pt-4">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-heading font-bold text-gray-900">Debts</h2>
-          <Button onClick={() => openModal('debt')} size="sm">
+      <section>
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <h2 className="text-lg font-heading font-semibold text-gray-900 min-w-0">Debts</h2>
+          <Button onClick={() => openModal('debt')} className="shrink-0">
             <Plus className="w-4 h-4 mr-1" /> Add Debt
           </Button>
         </div>
@@ -145,7 +157,7 @@ export default function FixedCostsPage() {
         </div>
 
         <Card className="overflow-hidden">
-          <TableHeader type="debt" />
+          <ListHeader type="debt" />
           {filteredDebts.length > 0 ? (
             <div className="divide-y divide-gray-100">
               {filteredDebts.map(renderRow)}
@@ -153,10 +165,7 @@ export default function FixedCostsPage() {
           ) : (
              <div className="py-8 text-center text-sm text-gray-500">No debts found in this category.</div>
           )}
-          <div className="bg-gray-50/50 py-3 px-4 border-t border-gray-200 flex justify-end items-center">
-             <span className="text-sm font-semibold text-gray-500 mr-8 uppercase tracking-wider">Subtotal</span>
-             <span className="text-lg font-mono font-bold text-gray-900">{formatCurrency(debtSubtotal)}</span>
-          </div>
+          <Subtotal value={debtSubtotal} />
         </Card>
       </section>
 

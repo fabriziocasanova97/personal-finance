@@ -18,7 +18,7 @@ export function DebtCountdown() {
   if (debts.length === 0) {
     return (
       <Card>
-        <CardContent className="p-6 flex items-center justify-center text-center flex-col text-gray-400">
+        <CardContent className="p-4 sm:p-6 flex items-center justify-center text-center flex-col text-gray-400">
            <AlertCircle className="w-8 h-8 mb-2 opacity-50" />
            <p className="text-sm">No active debts with remaining months found.</p>
         </CardContent>
@@ -37,22 +37,22 @@ export function DebtCountdown() {
 
   return (
     <Card className="bg-white">
-      <CardContent className="p-6">
+      <CardContent className="p-4 sm:p-6">
         <div className="flex items-center gap-4">
-          <div className="p-3 bg-red-50 rounded-full text-red-500">
-             <CalendarDays className="w-8 h-8" />
+          <div className="p-3 bg-red-50 rounded-full text-red-500 shrink-0">
+             <CalendarDays className="w-6 h-6 sm:w-8 sm:h-8" />
           </div>
-          <div>
-            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Debt Free Target</h3>
+          <div className="min-w-0">
+            <h3 className="text-xs font-mono font-semibold text-gray-500 uppercase tracking-wider mb-1">Debt Free Target</h3>
             {isOverdue ? (
                <p className="text-xl font-bold font-heading text-red-600">Past Due</p>
             ) : (
                <div className="flex items-baseline gap-2">
-                 <span className="text-3xl font-heading font-bold text-gray-900">{monthsRemaining}</span>
+                 <span className="text-3xl font-heading font-bold text-gray-900 tabular-nums">{monthsRemaining}</span>
                  <span className="text-gray-500 font-medium">{monthsRemaining === 1 ? 'month' : 'months'} to go</span>
                </div>
             )}
-            <p className="text-xs text-gray-400 mt-1">Based on longest debt: {furthestDebt.name}</p>
+            <p className="text-xs text-gray-400 mt-1 truncate">Based on longest debt: {furthestDebt.name}</p>
           </div>
         </div>
       </CardContent>

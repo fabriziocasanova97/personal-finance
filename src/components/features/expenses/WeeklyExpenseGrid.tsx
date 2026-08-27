@@ -45,7 +45,7 @@ export function WeeklyExpenseGrid({ expenses, currentDate }: WeeklyExpenseGridPr
         </div>
       </div>
 
-      <div className="grid grid-cols-7 gap-2 md:gap-4">
+      <div className="grid grid-cols-7 gap-1 sm:gap-2 md:gap-4">
         {dailyTotals.map(({ date, total }, index) => {
           const isToday = isSameDay(date, new Date());
           // the height calculation for the bar could scale to max day. Just mapping some static scale.
@@ -59,11 +59,11 @@ export function WeeklyExpenseGrid({ expenses, currentDate }: WeeklyExpenseGridPr
                   className={`w-full absolute bottom-0 rounded-b-sm transition-all duration-500 ${isToday ? 'bg-accent/80' : 'bg-green-100'} ${total > 0 ? 'group-hover:bg-accent' : ''}`}
                   style={{ height: `${barHeight}%` }}
                 />
-                <div className="z-10 text-[10px] md:text-xs font-mono font-medium text-gray-700 pb-1 pt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="z-10 text-[11px] font-mono tabular-nums font-medium text-gray-700 pb-1 pt-2 truncate max-w-full px-0.5">
                   {total > 0 && formatCurrency(total)}
                 </div>
               </div>
-              <div className={`text-xs font-semibold ${isToday ? 'text-accent' : 'text-gray-500'}`}>
+              <div className={`text-[11px] sm:text-xs font-semibold ${isToday ? 'text-accent' : 'text-gray-500'}`}>
                 {format(date, "EEE")}
               </div>
               <div className={`text-xs font-mono mt-1 ${isToday ? 'text-gray-900 font-bold' : 'text-gray-400'}`}>

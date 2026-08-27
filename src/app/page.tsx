@@ -7,15 +7,15 @@ import { QuickExpenseInput } from "@/components/features/expenses/QuickExpenseIn
 
 export default function Home() {
   return (
-    <div className="max-w-7xl mx-auto w-full space-y-8">
+    <div className="max-w-7xl mx-auto w-full space-y-6 md:space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-heading font-bold text-gray-900 tracking-tight">Dashboard</h1>
+        <h1 className="text-2xl sm:text-3xl font-heading font-bold text-gray-900 tracking-tight">Dashboard</h1>
       </div>
       <QuickExpenseInput />
       
       <DashboardSummary />
       
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 items-start">
         <WeeklyIncomeEditor />
         <DebtCountdown />
       </div>

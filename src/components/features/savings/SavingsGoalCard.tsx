@@ -48,35 +48,35 @@ export function SavingsGoalCard({ goal, contributions, onAdd, onEdit }: SavingsG
 
   return (
     <Card className="flex flex-col overflow-hidden bg-white hover:border-accent/30 transition-colors">
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-green-50 rounded-sm">
+          <div className="flex items-center space-x-3 min-w-0">
+            <div className="p-2 bg-green-50 rounded-sm shrink-0">
               {getIcon()}
             </div>
-            <div>
+            <div className="min-w-0">
               <h3 className="font-heading font-bold text-gray-900 text-lg">{goal}</h3>
               <p className="text-xs text-gray-500 mt-0.5">{getGoalDescription()}</p>
             </div>
           </div>
         </div>
 
-        <div className="mt-8 mb-6">
-          <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Total Balance</p>
-          <div className="text-4xl font-mono font-bold text-gray-900 border-b border-gray-100 pb-6">
+        <div className="mt-6 sm:mt-8 mb-4 sm:mb-6">
+          <p className="text-xs font-mono text-gray-400 uppercase tracking-wider mb-1">Total Balance</p>
+          <div className="text-3xl sm:text-4xl font-mono font-bold text-gray-900 tabular-nums border-b border-gray-100 pb-4 sm:pb-6 truncate">
             {formatCurrency(totalBalance)}
           </div>
         </div>
 
-        <div className="flex items-center space-x-3">
-          <Button onClick={() => onAdd(goal)} className="flex-1 shadow-sm">
+        <div className="flex items-center gap-3">
+          <Button onClick={() => onAdd(goal)} className="flex-1 h-11 shadow-sm">
             <Plus className="w-4 h-4 mr-2" /> Add Funds
           </Button>
           <Button 
             variant="outline" 
             onClick={() => setShowHistory(!showHistory)} 
-            className="flex-none px-3"
-            title="Toggle History"
+            className="flex-none h-11 px-4 active:bg-gray-100"
+            aria-expanded={showHistory}
           >
             History <ChevronRight className={`w-4 h-4 ml-1 transition-transform ${showHistory ? 'rotate-90' : ''}`} />
           </Button>
@@ -84,27 +84,28 @@ export function SavingsGoalCard({ goal, contributions, onAdd, onEdit }: SavingsG
       </div>
 
       {showHistory && (
-        <div className="bg-gray-50 border-t border-gray-100 max-h-[250px] overflow-y-auto">
+        <div className="bg-gray-50 border-t border-gray-100 max-h-[250px] overflow-y-auto overscroll-contain">
           {sortedContributions.length > 0 ? (
             <div className="divide-y divide-gray-200/60">
               {sortedContributions.map(c => (
-                <div 
-                  key={c.id} 
+                <button
+                  type="button"
+                  key={c.id}
                   onClick={() => onEdit(c)}
-                  className="px-6 py-3 hover:bg-white cursor-pointer transition-colors flex justify-between items-center group"
+                  className="w-full min-h-14 px-4 sm:px-6 py-3 text-left hover:bg-white active:bg-gray-100 transition-colors flex justify-between items-center gap-3 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
                 >
-                  <div>
+                  <div className="min-w-0">
                     <div className="text-sm font-medium text-gray-900">{format(parseISO(c.date), 'MMM d, yyyy')}</div>
-                    {c.note && <div className="text-xs text-gray-500 mt-0.5 truncate max-w-[180px]">{c.note}</div>}
+                    {c.note && <div className="text-xs text-gray-500 mt-0.5 truncate">{c.note}</div>}
                   </div>
-                  <div className="font-mono text-sm font-semibold text-accent">
+                  <div className="font-mono text-sm font-semibold text-accent tabular-nums shrink-0">
                     +{formatCurrency(c.amount)}
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           ) : (
-             <div className="p-6 text-center text-sm text-gray-500">
+             <div className="p-4 sm:p-6 text-center text-sm text-gray-500">
                No contributions yet.
              </div>
           )}

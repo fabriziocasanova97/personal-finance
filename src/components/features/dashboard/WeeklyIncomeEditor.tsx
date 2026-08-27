@@ -44,14 +44,14 @@ export function WeeklyIncomeEditor() {
 
   return (
     <Card className="bg-accent/5 border-accent/20">
-      <CardContent className="p-6">
+      <CardContent className="p-4 sm:p-6">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
             <h3 className="font-heading font-semibold text-lg text-gray-900">Your Income</h3>
             <p className="text-sm text-gray-500">Base weekly income for tracking</p>
           </div>
           {!isEditing ? (
-            <Button variant="ghost" size="icon" onClick={() => {
+            <Button variant="ghost" size="icon" className="h-11 w-11 shrink-0 active:bg-gray-100" aria-label="Edit income" onClick={() => {
               setEditValue(currentWeekly.toString());
               setIsEditing(true);
             }}>
@@ -59,18 +59,18 @@ export function WeeklyIncomeEditor() {
             </Button>
           ) : (
              <div className="flex items-center gap-2">
-               <Button variant="ghost" size="icon" onClick={handleSave} className="text-green-600 hover:text-green-700 hover:bg-green-50">
+               <Button variant="ghost" size="icon" onClick={handleSave} className="h-11 w-11 text-green-600 hover:text-green-700 hover:bg-green-50 active:bg-green-100" aria-label="Save">
                  <Check className="h-4 w-4" />
                </Button>
-               <Button variant="ghost" size="icon" onClick={() => setIsEditing(false)} className="text-red-500 hover:text-red-600 hover:bg-red-50">
+               <Button variant="ghost" size="icon" onClick={() => setIsEditing(false)} className="h-11 w-11 text-red-500 hover:text-red-600 hover:bg-red-50 active:bg-red-100" aria-label="Cancel">
                  <X className="h-4 w-4" />
                </Button>
              </div>
           )}
         </div>
 
-        <div className="mt-6 flex flex-col md:flex-row gap-6 items-center">
-          <div className="flex-1 w-full p-4 bg-white rounded-sm shadow-sm border border-gray-100">
+        <div className="mt-4 sm:mt-6 flex flex-col md:flex-row gap-3 sm:gap-6 items-stretch md:items-center">
+          <div className="flex-1 w-full min-w-0 p-4 bg-white rounded-sm shadow-sm border border-gray-100">
             <Label className="text-xs text-gray-400 uppercase tracking-wider">Weekly</Label>
             {isEditing ? (
               <Input 
@@ -78,25 +78,26 @@ export function WeeklyIncomeEditor() {
                 type="number" 
                 value={editValue} 
                 onChange={e => setEditValue(e.target.value)}
-                className="mt-1 font-mono text-xl text-gray-900 font-semibold h-10"
+                inputMode="decimal"
+                className="mt-1 font-mono text-base sm:text-xl text-gray-900 font-semibold h-11"
               />
             ) : (
-              <div className="mt-1 font-mono text-2xl text-gray-900 font-semibold">
+              <div className="mt-1 font-mono text-2xl text-gray-900 font-semibold tabular-nums">
                 {formatCurrency(currentWeekly)}
               </div>
             )}
           </div>
           
-          <div className="flex-1 w-full p-4 bg-white rounded-sm shadow-sm border border-gray-100 opacity-80 cursor-default">
+          <div className="flex-1 w-full min-w-0 p-4 bg-white rounded-sm shadow-sm border border-gray-100 opacity-80 cursor-default">
             <Label className="text-xs text-gray-400 uppercase tracking-wider">Monthly (Est.)</Label>
-            <div className="mt-1 font-mono text-lg text-gray-700 font-medium">
+            <div className="mt-1 font-mono text-lg text-gray-700 font-medium tabular-nums">
               {formatCurrency(currentMonthly)}
             </div>
           </div>
           
-          <div className="flex-1 w-full p-4 bg-white rounded-sm shadow-sm border border-gray-100 opacity-80 cursor-default">
+          <div className="flex-1 w-full min-w-0 p-4 bg-white rounded-sm shadow-sm border border-gray-100 opacity-80 cursor-default">
             <Label className="text-xs text-gray-400 uppercase tracking-wider">Annual (Est.)</Label>
-            <div className="mt-1 font-mono text-lg text-gray-700 font-medium">
+            <div className="mt-1 font-mono text-lg text-gray-700 font-medium tabular-nums">
               {formatCurrency(currentAnnual)}
             </div>
           </div>

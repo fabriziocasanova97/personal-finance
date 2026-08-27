@@ -77,12 +77,13 @@ export function BudgetModal({ isOpen, onClose, category, existingBudget }: Budge
             step="0.01" 
             value={amount} 
             onChange={(e) => setAmount(e.target.value)} 
-            placeholder="No limit" 
+            placeholder="No limit"
+            inputMode="decimal"
           />
           <p className="text-xs text-gray-400 mt-1">Leave blank or 0 to clear the budget limit.</p>
         </div>
 
-        <div className="pt-4 flex items-center justify-end space-x-2 border-t border-gray-100 mt-6">
+        <div className="pt-4 flex flex-wrap justify-end gap-2 border-t border-gray-100 mt-6">
           <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
           <Button type="submit">Save Budget</Button>
         </div>

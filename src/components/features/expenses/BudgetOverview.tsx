@@ -23,7 +23,7 @@ export function BudgetOverview() {
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="font-heading font-semibold text-lg text-gray-900">Monthly Budgets</h3>
-          <p className="text-sm text-gray-500">Click a category to set or clear its limit for {format(new Date(), "MMMM")}</p>
+          <p className="text-sm text-gray-500">Tap a category to set or clear its limit for {format(new Date(), "MMMM")}</p>
         </div>
       </div>
 
@@ -35,11 +35,12 @@ export function BudgetOverview() {
           const barColor = pct >= 100 ? "bg-red-500" : pct >= 80 ? "bg-amber-500" : "bg-accent";
 
           return (
-            <Card
-              key={category}
-              onClick={() => setCategoryToEdit(category)}
-              className="p-3 cursor-pointer hover:border-accent/50 transition-colors"
-            >
+            <Card key={category} className="hover:border-accent/50 transition-colors">
+              <button
+                type="button"
+                onClick={() => setCategoryToEdit(category)}
+                className="block text-left w-full min-h-14 p-3 cursor-pointer active:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+              >
               <div className="flex items-center justify-between gap-2">
                 <span className="text-sm font-medium text-gray-900 truncate">{category}</span>
                 {budget && pct >= 100 && (
@@ -55,6 +56,7 @@ export function BudgetOverview() {
                   <div className={`h-full rounded-full ${barColor}`} style={{ width: `${Math.min(100, pct)}%` }} />
                 </div>
               )}
+              </button>
             </Card>
           );
         })}

@@ -29,22 +29,23 @@ export function TopNavigation() {
             <div className="flex-shrink-0 flex items-center">
               <span className="text-xl font-bold font-heading text-accent">FinClear</span>
             </div>
-            <div className="hidden md:ml-6 md:flex md:space-x-8">
+            <div className="hidden md:ml-6 md:flex md:space-x-5 lg:space-x-8">
               {navItems.map((item) => {
                 const isActive = pathname === item.href || (item.href !== '/' && pathname?.startsWith(item.href));
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
+                    title={item.name}
                     className={cn(
-                      'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200 ease-in-out',
+                      'inline-flex items-center whitespace-nowrap px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200 ease-in-out',
                       isActive
                         ? 'border-accent text-gray-900'
                         : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
                     )}
                   >
-                    <item.icon className="w-4 h-4 mr-2" />
-                    {item.name}
+                    <item.icon className="w-5 h-5 lg:w-4 lg:h-4 lg:mr-2" />
+                    <span className="hidden lg:inline">{item.name}</span>
                   </Link>
                 );
               })}

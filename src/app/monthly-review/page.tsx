@@ -148,7 +148,7 @@ export default function MonthlyReviewPage() {
     <div className="space-y-6 pb-8">
       
       <div>
-        <h2 className="text-2xl font-heading font-bold text-gray-900">Monthly Review - {YEAR}</h2>
+        <h2 className="text-2xl sm:text-3xl font-heading font-bold text-gray-900">Monthly Review - {YEAR}</h2>
         <p className="text-gray-500 text-sm mt-1">Detailed breakdown of income and expenses over time.</p>
       </div>
 
@@ -185,15 +185,17 @@ export default function MonthlyReviewPage() {
         </Card>
       </div>
 
+      <div className="space-y-2">
+      <p className="md:hidden text-xs text-gray-400">Swipe to see more months &rarr;</p>
       <Card className="overflow-hidden border border-gray-200">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left whitespace-nowrap">
+        <div className="overflow-x-auto overscroll-x-contain">
+          <table className="w-full table-fixed text-sm text-left whitespace-nowrap">
             <thead className="bg-gray-50 border-b border-gray-200 uppercase tracking-wider text-gray-500 text-xs font-semibold">
               <tr>
-                <th className="px-4 py-3 sticky left-0 bg-gray-50 z-10 w-64 border-r border-gray-200">Category</th>
-                <th className="px-4 py-3 text-right w-32 border-r border-blue-200 bg-blue-50/50 text-blue-800">Ideal</th>
+                <th className="px-4 py-3 sticky left-0 bg-gray-50 z-10 w-36 md:w-64 max-w-36 md:max-w-64 truncate border-r border-gray-200">Category</th>
+                <th className="px-4 py-3 text-right w-24 md:w-32 border-r border-blue-200 bg-blue-50/50 text-blue-800">Ideal</th>
                 {activeMonths.map(m => (
-                  <th key={m} className="px-4 py-3 text-right w-32 border-r border-gray-200 last:border-r-0">{m}</th>
+                  <th key={m} className="px-4 py-3 text-right w-24 md:w-32 border-r border-gray-200 last:border-r-0">{m}</th>
                 ))}
               </tr>
             </thead>
@@ -201,7 +203,7 @@ export default function MonthlyReviewPage() {
               
               {/* --- INCOME SECTION --- */}
               <tr className="bg-green-50/30">
-                <td className="px-4 py-4 sticky left-0 z-10 border-r border-gray-200 font-bold text-gray-900 bg-white group-hover:bg-green-50/30">
+                <td className="px-4 py-4 sticky left-0 z-10 border-r border-gray-200 max-w-36 md:max-w-64 truncate font-bold text-gray-900 bg-white">
                   Income
                 </td>
                 <td className="px-4 py-3 text-right font-mono font-medium text-green-700 bg-blue-50/30 border-r border-blue-100">
@@ -214,7 +216,7 @@ export default function MonthlyReviewPage() {
                 ))}
               </tr>
               <tr className="bg-green-50/10 hover:bg-green-50/20 transition-colors">
-                <td className="px-4 py-3 sticky left-0 z-10 border-r border-gray-200 text-gray-600 bg-white">
+                <td className="px-4 py-3 sticky left-0 z-10 border-r border-gray-200 max-w-36 md:max-w-64 truncate text-gray-600 bg-white">
                   + Rollover from Previous Month
                 </td>
                 <td className="px-4 py-3 text-right font-mono text-gray-500 bg-blue-50/30 border-r border-blue-100">
@@ -227,7 +229,7 @@ export default function MonthlyReviewPage() {
                 ))}
               </tr>
               <tr className="bg-green-100/50 font-bold border-b-2 border-green-200/50">
-                <td className="px-4 py-4 sticky left-0 z-10 border-r border-gray-200 text-green-900 bg-white">
+                <td className="px-4 py-4 sticky left-0 z-10 border-r border-gray-200 max-w-36 md:max-w-64 truncate text-green-900 bg-white">
                   Total Monthly Funds
                 </td>
                 <td className="px-4 py-4 text-right font-mono text-green-800 bg-blue-50/30 border-r border-blue-100">
@@ -248,7 +250,7 @@ export default function MonthlyReviewPage() {
               </tr>
               {savingsGoals.map(goal => (
                 <tr key={goal} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="px-4 py-3 sticky left-0 bg-white z-10 border-r border-gray-200 text-gray-700">
+                  <td className="px-4 py-3 sticky left-0 bg-white z-10 border-r border-gray-200 max-w-36 md:max-w-64 truncate text-gray-700">
                     {goal}
                   </td>
                   <td className="px-2 py-2 text-right bg-blue-50/30 border-r border-blue-100 align-middle">
@@ -257,7 +259,7 @@ export default function MonthlyReviewPage() {
                       value={idealSavings[goal] ?? ""}
                       onChange={(e) => handleIdealSavingsChange(goal, e.target.value)}
                       placeholder="0"
-                      className="w-16 px-1 py-1 text-right text-xs font-mono border border-blue-200 rounded text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white hover:bg-white"
+                      className="w-20 md:w-24 h-11 px-2 text-right text-base font-mono border border-blue-200 rounded-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
                     />
                   </td>
                   {selectedMonths.map(m => {
@@ -271,7 +273,7 @@ export default function MonthlyReviewPage() {
                 </tr>
               ))}
                <tr className="bg-purple-50/30 font-semibold border-t-2 border-gray-100">
-                <td className="px-4 py-3 sticky left-0 z-10 border-r border-gray-200 text-purple-900 bg-white">
+                <td className="px-4 py-3 sticky left-0 z-10 border-r border-gray-200 max-w-36 md:max-w-64 truncate text-purple-900 bg-white">
                   Savings Subtotal
                 </td>
                 <td className="px-4 py-3 text-right font-mono text-purple-700 bg-blue-50/30 border-r border-blue-100">
@@ -292,7 +294,7 @@ export default function MonthlyReviewPage() {
               </tr>
               {regularFixedCosts.map(cost => (
                 <tr key={cost.id} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="px-4 py-3 sticky left-0 bg-white z-10 border-r border-gray-200 text-gray-700">
+                  <td className="px-4 py-3 sticky left-0 bg-white z-10 border-r border-gray-200 max-w-36 md:max-w-64 truncate text-gray-700">
                     {cost.name} <span className="text-xs text-gray-400 ml-2">({cost.category})</span>
                   </td>
                   <td className="px-4 py-3 text-right font-mono text-gray-700 bg-blue-50/30 border-r border-blue-100">
@@ -306,7 +308,7 @@ export default function MonthlyReviewPage() {
                 </tr>
               ))}
               <tr className="bg-amber-50/30 font-semibold border-t-2 border-gray-100">
-                <td className="px-4 py-3 sticky left-0 z-10 border-r border-gray-200 text-amber-900 bg-white">
+                <td className="px-4 py-3 sticky left-0 z-10 border-r border-gray-200 max-w-36 md:max-w-64 truncate text-amber-900 bg-white">
                   Fixed Costs Subtotal
                 </td>
                 <td className="px-4 py-3 text-right font-mono text-amber-700 bg-blue-50/30 border-r border-blue-100">
@@ -327,7 +329,7 @@ export default function MonthlyReviewPage() {
               </tr>
               {debtCosts.map(cost => (
                 <tr key={cost.id} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="px-4 py-3 sticky left-0 bg-white z-10 border-r border-gray-200 text-gray-700 flex justify-between items-center">
+                  <td className="px-4 py-3 sticky left-0 bg-white z-10 border-r border-gray-200 max-w-36 md:max-w-64 truncate text-gray-700">
                     <span>{cost.name}</span>
                   </td>
                   <td className={`px-4 py-3 text-right font-mono bg-blue-50/30 border-r border-blue-100 ${isDebtActiveInMonth(cost, new Date().getMonth()) ? 'text-gray-700' : 'text-gray-300'}`}>
@@ -344,7 +346,7 @@ export default function MonthlyReviewPage() {
                 </tr>
               ))}
               <tr className="bg-red-50/30 font-semibold border-t-2 border-gray-100">
-                <td className="px-4 py-3 sticky left-0 z-10 border-r border-gray-200 text-red-900 bg-white">
+                <td className="px-4 py-3 sticky left-0 z-10 border-r border-gray-200 max-w-36 md:max-w-64 truncate text-red-900 bg-white">
                   Debts Subtotal
                 </td>
                 <td className="px-4 py-3 text-right font-mono text-red-700 bg-blue-50/30 border-r border-blue-100">
@@ -365,7 +367,7 @@ export default function MonthlyReviewPage() {
               </tr>
               {expenseCategories.map(cat => (
                 <tr key={cat} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="px-4 py-3 sticky left-0 bg-white z-10 border-r border-gray-200 text-gray-700">
+                  <td className="px-4 py-3 sticky left-0 bg-white z-10 border-r border-gray-200 max-w-36 md:max-w-64 truncate text-gray-700">
                     {cat}
                   </td>
                   <td className="px-2 py-2 text-right bg-blue-50/30 border-r border-blue-100 align-middle">
@@ -374,7 +376,7 @@ export default function MonthlyReviewPage() {
                       value={idealExpenses[cat] ?? ""}
                       onChange={(e) => handleIdealExpenseChange(cat, e.target.value)}
                       placeholder="0"
-                      className="w-16 px-1 py-1 text-right text-xs font-mono border border-blue-200 rounded text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white hover:bg-white"
+                      className="w-20 md:w-24 h-11 px-2 text-right text-base font-mono border border-blue-200 rounded-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
                     />
                   </td>
                   {selectedMonths.map(m => {
@@ -388,7 +390,7 @@ export default function MonthlyReviewPage() {
                 </tr>
               ))}
               <tr className="bg-orange-50/30 font-semibold border-t-2 border-gray-100">
-                <td className="px-4 py-3 sticky left-0 z-10 border-r border-gray-200 text-orange-900 bg-white">
+                <td className="px-4 py-3 sticky left-0 z-10 border-r border-gray-200 max-w-36 md:max-w-64 truncate text-orange-900 bg-white">
                   Daily Expenses Subtotal
                 </td>
                 <td className="px-4 py-3 text-right font-mono text-orange-700 bg-blue-50/30 border-r border-blue-100">
@@ -403,7 +405,7 @@ export default function MonthlyReviewPage() {
 
               {/* --- FINAL AVAILABLE / CARRIED OVER --- */}
               <tr className="bg-blue-50/40 font-bold border-t-2 border-blue-200/50">
-                <td className="px-4 py-5 sticky left-0 z-10 border-r border-gray-200 text-blue-900 bg-white whitespace-normal">
+                <td className="px-4 py-5 sticky left-0 z-10 border-r border-gray-200 max-w-36 md:max-w-64 text-blue-900 bg-white whitespace-normal">
                   Available (Rollover to Next Month)
                 </td>
                 <td className={`px-4 py-5 text-right font-mono border-r border-blue-200 bg-blue-100/50 ${idealAvailable >= 0 ? 'text-blue-700' : 'text-red-600'}`}>
@@ -423,6 +425,7 @@ export default function MonthlyReviewPage() {
           </table>
         </div>
       </Card>
+      </div>
 
     </div>
   );
