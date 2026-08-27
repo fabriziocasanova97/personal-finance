@@ -80,7 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Supabase docs: never await Supabase calls inside this callback (it
       // holds the auth lock and deadlocks). Defer the fetch to the next tick.
-      if (session?.user && (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+      if (session?.user && (event === 'INITIAL_SESSION' || event === 'SIGNED_IN')) {
         setTimeout(loadCloudData, 0);
       }
 
