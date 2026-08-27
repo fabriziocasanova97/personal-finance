@@ -24,7 +24,7 @@ Spacing: Tailwind scale. Page gutter `px-4 sm:px-6 lg:px-12 xl:px-24`. Section g
 - **Every `<input>`, `<select>`, `<textarea>` is ≥16px (`text-base`)** — iOS Safari zooms on anything smaller and never zooms back.
 
 ## 4. Mobile rules (iPhone 390×844 is the primary target)
-1. **Tap targets ≥44×44px.** Buttons `h-11`, chips `min-h-10`, icon buttons `h-11 w-11`, list rows `min-h-14`.
+1. **Tap targets ≥44×44px.** Buttons `h-11`, chips `min-h-11`, icon buttons `h-11 w-11`, list rows `min-h-14`.
 2. **No hover-only information.** Anything shown on `group-hover` must also be visible by default on touch.
 3. **Press feedback:** tappable things get `active:` styles (`active:bg-gray-100`, `active:scale-[0.98]`). Clickable rows are `<button>`, never `<div onClick>`.
 4. **Safe areas:** fixed bottom UI uses `pb-safe`; fixed top UI uses `pt-safe` (utilities in globals.css). `viewport-fit=cover` is set in `layout.tsx`.

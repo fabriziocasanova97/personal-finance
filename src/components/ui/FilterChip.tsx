@@ -11,7 +11,7 @@ const FilterChip = React.forwardRef<HTMLButtonElement, FilterChipProps>(
       <button
         ref={ref}
         className={cn(
-          "inline-flex items-center justify-center whitespace-nowrap rounded-sm border min-h-10 px-4 py-1.5 text-sm font-medium transition-colors active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent disabled:pointer-events-none disabled:opacity-50",
+          "inline-flex items-center justify-center whitespace-nowrap rounded-sm border min-h-11 px-4 py-1.5 text-sm font-medium transition-colors active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent disabled:pointer-events-none disabled:opacity-50",
           active
             ? "border-accent bg-accent/10 text-accent hover:bg-accent/20"
             : "border-gray-200 bg-white text-gray-700 hover:bg-gray-100",
