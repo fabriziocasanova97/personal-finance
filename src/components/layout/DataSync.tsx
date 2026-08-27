@@ -78,16 +78,18 @@ export function DataSync() {
     <div className="flex items-center space-x-1 sm:space-x-2">
       <button
         onClick={handleExport}
-        className="p-2 text-gray-500 hover:text-accent rounded-md hover:bg-accent/10 transition-colors"
+        className="flex h-11 w-11 items-center justify-center text-gray-500 hover:text-accent rounded-sm hover:bg-accent/10 active:bg-accent/10 transition-colors"
         title="Download Backup"
+        aria-label="Download Backup"
       >
         <Download className="w-5 h-5 sm:w-6 sm:h-6" />
       </button>
       
       <button
         onClick={() => fileInputRef.current?.click()}
-        className="p-2 text-gray-500 hover:text-accent rounded-md hover:bg-accent/10 transition-colors"
+        className="flex h-11 w-11 items-center justify-center text-gray-500 hover:text-accent rounded-sm hover:bg-accent/10 active:bg-accent/10 transition-colors"
         title="Upload Backup"
+        aria-label="Upload Backup"
       >
         <Upload className="w-5 h-5 sm:w-6 sm:h-6" />
       </button>

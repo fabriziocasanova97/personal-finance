@@ -95,12 +95,11 @@ export function FixedCostModal({ isOpen, onClose, costToEdit, typeFilter }: Fixe
             value={name} 
             onChange={(e) => setName(e.target.value)} 
             placeholder="e.g. Netflix" 
-            autoFocus 
             required 
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="amount">Monthly Amount</Label>
             <Input 
@@ -118,7 +117,7 @@ export function FixedCostModal({ isOpen, onClose, costToEdit, typeFilter }: Fixe
             <Label htmlFor="category">Category</Label>
             <select
               id="category"
-              className="flex h-9 w-full rounded-sm border border-gray-300 bg-white px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+              className="flex h-11 w-full rounded-sm border border-gray-300 bg-white px-3 py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               required

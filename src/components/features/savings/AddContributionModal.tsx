@@ -94,7 +94,7 @@ export function AddContributionModal({ isOpen, onClose, contributionToEdit, defa
           <Label htmlFor="goal">Savings Goal</Label>
           <select
             id="goal"
-            className="flex h-9 w-full rounded-sm border border-gray-300 bg-white px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+            className="flex h-11 w-full rounded-sm border border-gray-300 bg-white px-3 py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
             value={goal}
             onChange={(e) => setGoal(e.target.value as GoalType)}
             required
@@ -104,7 +104,7 @@ export function AddContributionModal({ isOpen, onClose, contributionToEdit, defa
           </select>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="date">Date</Label>
             <Input 
@@ -125,7 +125,6 @@ export function AddContributionModal({ isOpen, onClose, contributionToEdit, defa
               value={amount} 
               onChange={(e) => setAmount(e.target.value)} 
               placeholder="0.00" 
-              autoFocus={!contributionToEdit}
               required 
             />
           </div>

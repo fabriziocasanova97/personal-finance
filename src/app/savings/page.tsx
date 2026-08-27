@@ -31,7 +31,7 @@ export default function SavingsPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto w-full space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500 pb-8">
+    <div className="max-w-7xl mx-auto w-full space-y-8 pb-8">
       
       <div>
         <h2 className="text-2xl font-heading font-bold text-gray-900">Savings Goals</h2>

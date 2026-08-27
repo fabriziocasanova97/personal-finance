@@ -27,7 +27,7 @@ export function Toast() {
   return (
     <div
       role="status"
-      className={`fixed bottom-4 right-4 z-50 flex items-start gap-3 max-w-sm rounded-sm border p-4 shadow-lg animate-in fade-in slide-in-from-bottom-2 duration-300 ${
+      className={`fixed z-[60] flex items-start gap-3 rounded-sm border p-4 shadow-lg inset-x-4 top-[calc(0.75rem+env(safe-area-inset-top))] sm:inset-x-auto sm:top-auto sm:bottom-4 sm:right-4 sm:max-w-sm ${
         isError ? "bg-red-50 border-red-200 text-red-800" : "bg-green-50 border-green-200 text-green-800"
       }`}
     >
@@ -40,7 +40,7 @@ export function Toast() {
       <button
         onClick={() => setToast(null)}
         aria-label="Dismiss"
-        className={`shrink-0 rounded-sm p-0.5 transition-colors ${
+        className={`shrink-0 -m-2 flex h-9 w-9 items-center justify-center rounded-sm transition-colors ${
           isError ? "hover:bg-red-100 text-red-400" : "hover:bg-green-100 text-green-500"
         }`}
       >

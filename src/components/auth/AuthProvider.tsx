@@ -110,7 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider value={{ session, user, loading, signOut }}>
       {/* If loading and not on login page, we can show a spinner. Alternatively, let it render to avoid jumping, but prevent dashboard access */}
       {loading && pathname !== '/login' ? (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="min-h-dvh flex items-center justify-center bg-gray-50">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
         </div>
       ) : (

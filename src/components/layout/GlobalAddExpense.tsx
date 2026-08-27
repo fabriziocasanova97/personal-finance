@@ -15,7 +15,7 @@ export function GlobalAddExpense() {
   return (
     <>
       <Button
-        className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-50 rounded-full w-14 h-14 shadow-lg flex items-center justify-center p-0 transition-transform hover:scale-105 active:scale-95 bg-accent hover:bg-accent/90 text-white"
+        className="fixed right-4 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] md:bottom-8 md:right-8 z-40 rounded-full w-14 h-14 shadow-lg flex items-center justify-center p-0 transition-transform hover:scale-105 active:scale-95 bg-accent hover:bg-accent/90 text-white"
         onClick={() => setIsOpen(true)}
         aria-label="Add Expense"
       >

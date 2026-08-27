@@ -78,7 +78,6 @@ export function BudgetModal({ isOpen, onClose, category, existingBudget }: Budge
             value={amount} 
             onChange={(e) => setAmount(e.target.value)} 
             placeholder="No limit" 
-            autoFocus
           />
           <p className="text-xs text-gray-400 mt-1">Leave blank or 0 to clear the budget limit.</p>
         </div>

@@ -84,7 +84,7 @@ export default function FixedCostsPage() {
   );
 
   return (
-    <div className="max-w-7xl mx-auto w-full space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
+    <div className="max-w-7xl mx-auto w-full space-y-8">
       
       {/* Fixed Costs Section */}
       <section>

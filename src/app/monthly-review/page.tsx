@@ -145,7 +145,7 @@ export default function MonthlyReviewPage() {
   }).sort((a, b) => b.value - a.value);
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500 pb-8">
+    <div className="space-y-6 pb-8">
       
       <div>
         <h2 className="text-2xl font-heading font-bold text-gray-900">Monthly Review - {YEAR}</h2>

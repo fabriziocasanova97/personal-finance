@@ -10,7 +10,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'default', size = 'default', ...props }, ref) => {
     
     // using strictly rounded-sm for 2px radius
-    const baseStyles = "inline-flex items-center justify-center whitespace-nowrap rounded-sm text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-stone-950 disabled:pointer-events-none disabled:opacity-50"
+    const baseStyles = "inline-flex items-center justify-center whitespace-nowrap rounded-sm text-sm font-medium transition-[color,background-color,transform] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-stone-950 disabled:pointer-events-none disabled:opacity-50"
     
     const variants = {
       default: "bg-accent text-white shadow hover:bg-accent-hover",
@@ -22,10 +22,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }
     
     const sizes = {
-      default: "h-9 px-4 py-2",
-      sm: "h-8 px-3 text-xs",
-      lg: "h-10 px-8",
-      icon: "h-9 w-9",
+      default: "h-11 px-4 py-2",
+      sm: "h-10 px-3 text-xs",
+      lg: "h-12 px-8 text-base",
+      icon: "h-11 w-11",
     }
 
     return (

@@ -19,7 +19,7 @@
   --radius-xl: 2px;
   --radius-2xl: 2px;
   --radius-3xl: 2px;
-  --radius-full: 2px;
+  --radius-full: 9999px;
 }
 
 @layer base {
@@ -31,14 +31,43 @@
     border-color: var(--color-gray-200, currentColor);
   }
 
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     line-height: inherit;
     font-family: var(--font-sans);
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
+  }
+
+  button, a, input, select, textarea, [role="button"] {
+    touch-action: manipulation;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
   }
+}
+
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+@utility bottom-safe {
+  bottom: env(safe-area-inset-bottom, 0px);
 }

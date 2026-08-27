@@ -84,7 +84,7 @@ export function AddExpenseModal({ isOpen, onClose, expenseToEdit }: AddExpenseMo
       title={expenseToEdit ? "Edit Expense" : "Add Expense"}
     >
       <form onSubmit={handleSave} className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="date">Date</Label>
             <Input 
@@ -105,7 +105,6 @@ export function AddExpenseModal({ isOpen, onClose, expenseToEdit }: AddExpenseMo
               value={amount} 
               onChange={(e) => setAmount(e.target.value)} 
               placeholder="0.00" 
-              autoFocus={!expenseToEdit}
               required 
             />
           </div>
@@ -126,7 +125,7 @@ export function AddExpenseModal({ isOpen, onClose, expenseToEdit }: AddExpenseMo
           <Label htmlFor="category">Category</Label>
           <select
             id="category"
-            className="flex h-9 w-full rounded-sm border border-gray-300 bg-white px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+            className="flex h-11 w-full rounded-sm border border-gray-300 bg-white px-3 py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             required
@@ -135,15 +134,15 @@ export function AddExpenseModal({ isOpen, onClose, expenseToEdit }: AddExpenseMo
           </select>
         </div>
 
-        <div className="pt-4 flex items-center justify-between border-t border-gray-100 mt-6">
+        <div className="pt-4 flex items-center justify-between gap-2 border-t border-gray-100 mt-6">
           {expenseToEdit ? (
             <Button type="button" variant="ghost" onClick={handleDelete} className="text-red-500 hover:text-red-600 hover:bg-red-50">
               <Trash2 className="w-4 h-4 mr-2" />
               Delete
             </Button>
           ) : <div />}
-          <div className="space-x-2">
-            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+          <div className="flex gap-2">
+            <Button type="button" variant="outline" onClick={onClose} className="hidden sm:inline-flex">Cancel</Button>
             <Button type="submit">Save Expense</Button>
           </div>
         </div>

@@ -164,7 +164,7 @@ export function QuickExpenseInput() {
               <FilterChip
                 key={category}
                 onClick={() => handleChooseCategory(category)}
-                className="text-xs px-2 py-0.5"
+                className="text-xs"
               >
                 {category}
               </FilterChip>
@@ -181,7 +181,7 @@ export function QuickExpenseInput() {
       )}
 
       {successMessage && (
-        <p className="text-sm text-green-600 flex items-center gap-1.5 animate-in fade-in duration-200">
+        <p className="text-sm text-green-600 flex items-center gap-1.5">
           <CheckCircle2 className="w-4 h-4" />
           {successMessage}
         </p>
