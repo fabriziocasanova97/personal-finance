@@ -9,7 +9,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     storageKey: 'finclear-auth',
     autoRefreshToken: true,
     detectSessionInUrl: true,
-    lock: async (name: string, acquireTimeout: number, fn: () => Promise<any>) => fn(),
   },
 });
 

@@ -47,49 +47,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   useEffect(() => {
-    // Get initial session
-    const initializeAuth = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        setSession(session);
-        setUser(session?.user || null);
+    let cancelled = false;
 
-        if (session?.user) {
-          const cloudData = await dbFetchAll();
-          if (cloudData) {
-            applyCloudData(cloudData);
-          }
-        }
+    // Hard cap: whatever happens with Supabase, never leave the user on the
+    // spinner forever. The redirect effect handles the "no user" case.
+    const failsafe = setTimeout(() => setLoading(false), 10000);
+
+    const loadCloudData = async () => {
+      try {
+        const cloudData = await dbFetchAll();
+        if (cloudData && !cancelled) applyCloudData(cloudData);
       } catch (error) {
-        console.error('Error fetching session:', error);
-      } finally {
-        setLoading(false);
+        console.error('Error loading cloud data:', error);
       }
     };
 
-    initializeAuth();
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    // Single source of truth for the initial session. INITIAL_SESSION fires
+    // once the client has recovered (and, if needed, refreshed) the stored
+    // session, so we don't also call getSession() here — racing the two on a
+    // cold load with an expired token is what left the app stuck on "loading".
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (cancelled) return;
       setSession(session);
       setUser(session?.user || null);
 
-      if (session?.user) {
-        const cloudData = await dbFetchAll();
-        if (cloudData) {
-          applyCloudData(cloudData);
-        }
-      } else if (event === 'SIGNED_OUT') {
+      if (event === 'SIGNED_OUT') {
         // Clear local state only on an explicit sign-out, never on a missing/expired session
         useStore.getState().setExpenses([]);
         useStore.getState().setFixedCosts([]);
         useStore.getState().setSavings([]);
       }
 
+      // Supabase docs: never await Supabase calls inside this callback (it
+      // holds the auth lock and deadlocks). Defer the fetch to the next tick.
+      if (session?.user && (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+        setTimeout(loadCloudData, 0);
+      }
+
       setLoading(false);
     });
 
     return () => {
+      cancelled = true;
+      clearTimeout(failsafe);
       subscription.unsubscribe();
     };
   }, []);
