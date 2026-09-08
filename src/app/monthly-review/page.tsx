@@ -14,21 +14,24 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
 const YEAR = new Date().getFullYear();
 
 export default function MonthlyReviewPage() {
-  const { income, fixedCosts, expenses, savings, idealExpenses, setIdealExpenses, idealSavings, setIdealSavings } = useStore();
+  const {
+    income, fixedCosts, expenses, savings,
+    idealExpenses, setIdealExpenses, idealSavings, setIdealSavings,
+    selectedMonths, setSelectedMonths,
+  } = useStore();
   const [mounted, setMounted] = useState(false);
-  
-  // By default select the first 3 months + current month, or all if we want. Let's select all initially for easy viewing.
-  const [selectedMonths, setSelectedMonths] = useState<number[]>([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
 
   useEffect(() => setMounted(true), []);
   if (!mounted) return null;
 
+  // Selection lives in the persisted store (survives reload) and is synced to user_settings.
   const toggleMonth = (index: number) => {
-    setSelectedMonths(prev => 
-      prev.includes(index) 
-        ? prev.filter(m => m !== index).sort((a,b) => a - b)
-        : [...prev, index].sort((a,b) => a - b)
-    );
+    const next = selectedMonths.includes(index)
+      ? selectedMonths.filter(m => m !== index)
+      : [...selectedMonths, index];
+    next.sort((a, b) => a - b);
+    setSelectedMonths(next);
+    dbUpsertSettings({ selectedMonths: next }).catch(reportSyncError('month selection'));
   };
 
   const activeMonths = selectedMonths.map(i => MONTHS[i]);
@@ -121,13 +124,13 @@ export default function MonthlyReviewPage() {
   const handleIdealExpenseChange = (category: string, value: string) => {
     const next = { ...idealExpenses, [category]: value };
     setIdealExpenses(next);
-    dbUpsertSettings(next, idealSavings).catch(reportSyncError('ideal amounts'));
+    dbUpsertSettings({ idealExpenses: next }).catch(reportSyncError('ideal amounts'));
   };
 
   const handleIdealSavingsChange = (goal: string, value: string) => {
     const next = { ...idealSavings, [goal]: value };
     setIdealSavings(next);
-    dbUpsertSettings(idealExpenses, next).catch(reportSyncError('ideal amounts'));
+    dbUpsertSettings({ idealSavings: next }).catch(reportSyncError('ideal amounts'));
   };
 
   const spendingTrendData = selectedMonths.map(m => {

@@ -52,7 +52,9 @@ interface FinClearState {
   budgets: Budget[];
   idealExpenses: Record<string, string>;
   idealSavings: Record<string, string>;
-  
+  // Monthly Review: indices (0-11) of the months shown. Persisted locally and synced to user_settings.
+  selectedMonths: number[];
+
   // Actions
   setIncome: (income: Income | null) => void;
   setFixedCosts: (costs: FixedCost[]) => void;
@@ -61,6 +63,7 @@ interface FinClearState {
   setBudgets: (budgets: Budget[]) => void;
   setIdealExpenses: (idealExpenses: Record<string, string>) => void;
   setIdealSavings: (idealSavings: Record<string, string>) => void;
+  setSelectedMonths: (selectedMonths: number[]) => void;
 }
 
 export const useStore = create<FinClearState>()(
@@ -73,6 +76,7 @@ export const useStore = create<FinClearState>()(
       budgets: [],
       idealExpenses: {},
       idealSavings: {},
+      selectedMonths: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
 
       setIncome: (income) => set({ income }),
       setFixedCosts: (fixedCosts) => set({ fixedCosts }),
@@ -81,6 +85,7 @@ export const useStore = create<FinClearState>()(
       setBudgets: (budgets) => set({ budgets }),
       setIdealExpenses: (idealExpenses) => set({ idealExpenses }),
       setIdealSavings: (idealSavings) => set({ idealSavings }),
+      setSelectedMonths: (selectedMonths) => set({ selectedMonths }),
     }),
     {
       name: 'finclear_data', // storage name

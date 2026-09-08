@@ -30,7 +30,7 @@ export const dbFetchAll = async () => {
     supabase.from('savings').select('*'),
     supabase.from('budgets').select('*'),
     supabase.from('income').select('*').order('updated_at', { ascending: false }).limit(1).maybeSingle(),
-    supabase.from('user_settings').select('ideal_expenses, ideal_savings').maybeSingle(),
+    supabase.from('user_settings').select('ideal_expenses, ideal_savings, selected_months').maybeSingle(),
   ]);
 
   // If any core read failed, the cloud state is unknown — callers must keep
@@ -55,18 +55,33 @@ export const dbFetchAll = async () => {
     income: incomeRes.data as Income | null,
     idealExpenses: settingsRes.data?.ideal_expenses || {},
     idealSavings: settingsRes.data?.ideal_savings || {},
+    // null = unknown (no settings row or read failed); callers must keep local state.
+    selectedMonths: (settingsRes.data?.selected_months as number[] | undefined) ?? null,
   };
 };
 
-export const dbUpsertSettings = async (idealExpenses: Record<string, string>, idealSavings: Record<string, string>) => {
+export interface UserSettingsPatch {
+  idealExpenses?: Record<string, string>;
+  idealSavings?: Record<string, string>;
+  selectedMonths?: number[];
+}
+
+/**
+ * Partial upsert: only the keys present in `patch` are written, so saving one
+ * preference never clobbers the others (Postgres keeps omitted columns on conflict).
+ */
+export const dbUpsertSettings = async (patch: UserSettingsPatch) => {
   const userId = await requireUserId();
+
+  const row: Record<string, unknown> = { user_id: userId, updated_at: new Date().toISOString() };
+  if (patch.idealExpenses !== undefined) row.ideal_expenses = patch.idealExpenses;
+  if (patch.idealSavings !== undefined) row.ideal_savings = patch.idealSavings;
+  if (patch.selectedMonths !== undefined) row.selected_months = patch.selectedMonths;
 
   await supabase
     .from('user_settings')
-    .upsert(
-      { user_id: userId, ideal_expenses: idealExpenses, ideal_savings: idealSavings, updated_at: new Date().toISOString() },
-      { onConflict: 'user_id' }
-    ).throwOnError();
+    .upsert(row, { onConflict: 'user_id' })
+    .throwOnError();
 };
 
 export const dbUpsertIncome = async (income: Income) => {
@@ -174,9 +189,13 @@ export const dbOverwriteCloudWithLocal = async (localState: any) => {
     }
 
     // 1. Settings
-    if (localState.idealExpenses || localState.idealSavings) {
+    if (localState.idealExpenses || localState.idealSavings || localState.selectedMonths) {
       // Intentionally not blocking on settings failure in case migration wasn't run
-      await dbUpsertSettings(localState.idealExpenses || {}, localState.idealSavings || {}).catch(e => console.warn('Settings upsert failed:', e));
+      await dbUpsertSettings({
+        idealExpenses: localState.idealExpenses || {},
+        idealSavings: localState.idealSavings || {},
+        ...(Array.isArray(localState.selectedMonths) ? { selectedMonths: localState.selectedMonths } : {}),
+      }).catch(e => console.warn('Settings upsert failed:', e));
     }
     
     // 2. Expenses

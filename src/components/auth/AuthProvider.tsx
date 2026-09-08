@@ -37,6 +37,15 @@ function applyCloudData(cloudData: NonNullable<Awaited<ReturnType<typeof dbFetch
   if (cloudData.income) store.setIncome(cloudData.income);
   if (Object.keys(cloudData.idealExpenses).length > 0) store.setIdealExpenses(cloudData.idealExpenses);
   if (Object.keys(cloudData.idealSavings).length > 0) store.setIdealSavings(cloudData.idealSavings);
+  // null means the cloud value is unknown (no row / read failed) — keep local.
+  // An empty array is a valid choice (the UI allows deselecting every month).
+  if (Array.isArray(cloudData.selectedMonths)) store.setSelectedMonths(sanitizeMonths(cloudData.selectedMonths));
+}
+
+// Keep only unique integer month indices 0-11, ascending.
+function sanitizeMonths(months: unknown[]): number[] {
+  const valid = months.filter((m): m is number => Number.isInteger(m) && (m as number) >= 0 && (m as number) <= 11);
+  return [...new Set(valid)].sort((a, b) => a - b);
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
